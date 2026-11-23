@@ -1,0 +1,81 @@
+/* First-run setup: lives in the sign-in card (wide), with a stepper above the form. */
+.setup { text-align: left; }
+
+.setup-stepper {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+.setup-stepper li {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1-5);
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+}
+/* The line between dots: from this dot to the next one. */
+.setup-stepper li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 13px;
+  left: calc(50% + 18px);
+  right: calc(-50% + 18px);
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: light-dark(var(--neutral-200), oklch(1 0 0 / 0.1));
+}
+.setup-stepper li.is-done::after { background: light-dark(oklch(0.6 0.15 var(--_tint)), oklch(0.7 0.12 var(--_tint))); }
+.setup-stepper__dot {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid light-dark(var(--neutral-200), oklch(1 0 0 / 0.12));
+  border-radius: var(--radius-full);
+  background: var(--card);
+  font-variant-numeric: tabular-nums;
+}
+.setup-stepper__dot svg { width: 14px; height: 14px; stroke-width: 2.5; }
+.setup-stepper li.is-current { color: var(--foreground); }
+.setup-stepper li.is-current .setup-stepper__dot {
+  border-color: light-dark(oklch(0.6 0.15 var(--_tint)), oklch(0.7 0.12 var(--_tint)));
+  box-shadow: 0 0 0 4px oklch(0.6 0.15 var(--_tint) / 0.14);
+  color: light-dark(oklch(0.45 0.2 var(--_tint)), oklch(0.85 0.08 var(--_tint)));
+}
+.setup-stepper li.is-done .setup-stepper__dot {
+  border-color: transparent;
+  background: light-dark(oklch(0.5 0.2 var(--_tint)), oklch(0.7 0.12 var(--_tint)));
+  color: white;
+}
+@media (max-width: 480px) {
+  .setup-stepper__label { display: none; }
+}
+
+
+.setup__code textarea { font-family: var(--font-mono); font-size: 13px; line-height: 1.5; }
+
+.setup__summary {
+  margin: 0;
+  border: 1px solid light-dark(var(--neutral-200), oklch(1 0 0 / 0.1));
+  border-radius: 14px;
+  overflow: hidden;
+}
+.setup__summary-row {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2-5) var(--space-2) var(--space-2-5) var(--space-4);
+  font-size: var(--text-sm);
+}
+.setup__summary-row + .setup__summary-row { border-top: 1px solid light-dark(var(--neutral-200), oklch(1 0 0 / 0.08)); }
+.setup__summary-row dt { color: var(--muted-foreground); }
+.setup__summary-row dd { overflow: hidden; margin: 0; font-weight: var(--font-weight-medium); text-overflow: ellipsis; white-space: nowrap; }
+.setup__summary-row code { margin-left: var(--space-1); color: var(--muted-foreground); font-family: var(--font-mono); font-size: var(--text-xs); font-weight: var(--font-weight-regular); }

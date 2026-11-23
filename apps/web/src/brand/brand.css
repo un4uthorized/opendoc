@@ -1,0 +1,12 @@
+/* OpenDoc logo images. The full logo has a light-theme file (navy wordmark) and a dark-theme
+   file (light wordmark); only the one matching the theme shows. */
+.opendoc-mark { flex: none; object-fit: contain; }
+.opendoc-wordmark { display: inline-flex; flex: none; }
+.opendoc-wordmark img { display: block; max-width: 100%; height: auto; }
+.opendoc-wordmark--dark { display: none !important; }
+:root[data-theme='dark'] .opendoc-wordmark--light { display: none !important; }
+:root[data-theme='dark'] .opendoc-wordmark--dark { display: block !important; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .opendoc-wordmark--light { display: none !important; }
+  :root:not([data-theme='light']) .opendoc-wordmark--dark { display: block !important; }
+}

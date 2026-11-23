@@ -1,0 +1,177 @@
+/* API screen: import first, then the YAML editor (problems below it) next to a live preview. */
+
+.admin-page--wide { max-width: 1280px; }
+.api-version-trigger__meta { margin-left: var(--space-1-5); color: var(--muted-foreground); font-weight: var(--font-weight-regular, 400); }
+.api-version-menu { min-width: 240px; }
+.api-version-menu__name { font-weight: var(--font-weight-medium); }
+.api-version-menu__meta { margin-left: auto; padding-left: var(--space-4); color: var(--muted-foreground); font-size: var(--text-xs); }
+
+/* Empty state: import */
+.api-empty { display: grid; gap: var(--space-2); padding: var(--space-8); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); }
+.api-empty__title { margin: 0; font-size: var(--text-lg); font-weight: var(--font-weight-semibold); }
+.api-import { display: grid; gap: var(--space-4); margin-top: var(--space-3); }
+.api-import__alternatives { display: grid; gap: var(--space-4); }
+.api-import__paste { display: grid; gap: var(--space-2); justify-items: start; }
+.api-import__paste > .ds-field { width: 100%; }
+.api-import__textarea textarea, textarea.api-import__textarea { font-family: var(--font-mono); font-size: var(--text-xs); }
+.api-import__blank { justify-self: start; padding: 0; }
+.admin-dialog--wide { width: min(680px, calc(100vw - 32px)); }
+
+/* Workspace */
+.api-workspace { position: relative; display: grid; grid-template-columns: minmax(0, calc(100% * var(--api-split, 0.5))) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; min-height: 560px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); }
+
+
+.api-editor { position: relative; grid-column: 1; grid-row: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; border-right: 1px solid var(--border); }
+/* The workspace's own footer row, not the floating bar used elsewhere in the admin. Two classes so it
+   wins over .admin-action-bar whatever order the stylesheets load in (otherwise the bar floats 16px
+   up, over the problems line). */
+.admin-action-bar.api-actions { grid-column: 1 / -1; grid-row: 2; position: static; margin: 0; border-width: 1px 0 0; border-radius: 0; box-shadow: none; }
+.admin-page--full .api-editor__code.ds-json-editor { display: flex; flex: 1 1 0; flex-direction: column; min-height: 0; max-height: none; }
+.admin-page--full .api-editor__code .cm-editor { flex: 1; min-height: 0; max-height: none; }
+.api-editor__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border); }
+.api-editor__hint { color: var(--muted-foreground); font-size: var(--text-xs); }
+.api-editor__actions { display: flex; align-items: center; gap: var(--space-1); margin-left: auto; }
+.api-editor__code.ds-json-editor { flex: 1; min-height: 460px; max-height: 68vh; border: 0; border-radius: 0; }
+
+.api-problems { max-height: 200px; overflow-y: auto; padding: var(--space-2) var(--space-3); border-top: 1px solid var(--border); font-size: var(--text-sm); }
+.api-problems__ok { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--muted-foreground); }
+.api-problems__ok svg { flex: none; width: 16px; height: 16px; color: var(--success); }
+.api-problems__ok strong { color: var(--foreground); font-weight: var(--font-weight-medium); }
+.api-problems__summary { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin: 0 0 var(--space-1); }
+.api-problems__count { display: inline-flex; align-items: center; gap: var(--space-1); font-weight: var(--font-weight-medium); }
+.api-problems__count svg, .api-problems__item svg { flex: none; width: 14px; height: 14px; }
+.is-error > svg, .api-problems__count.is-error { color: var(--destructive); }
+.is-warning > svg, .api-problems__count.is-warning { color: var(--warning); }
+.api-problems__list { display: grid; margin: 0; padding: 0; list-style: none; }
+.api-problems__item { display: flex; align-items: baseline; gap: var(--space-2); width: 100%; padding: 3px var(--space-1); border: 0; border-radius: var(--radius-sm); background: none; color: var(--foreground); font: inherit; font-size: var(--text-sm); text-align: left; cursor: pointer; }
+.api-problems__item:hover { background: var(--accent); }
+.api-problems__item:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+.api-problems__item > svg { align-self: center; }
+.api-problems__line { flex: none; color: var(--muted-foreground); font-family: var(--font-mono); font-size: var(--text-xs); }
+
+/* Live API reference preview, right of the editor */
+.api-preview { grid-column: 2; grid-row: 1; position: relative; min-width: 0; min-height: 0; max-height: 78vh; overflow-y: auto; padding: var(--space-4) var(--space-6) var(--space-10); }
+.admin-page--full .api-preview { max-height: none; }
+.api-preview__label { margin: 0 0 var(--space-3); color: var(--muted-foreground); font-size: var(--text-xs); font-weight: var(--font-weight-medium); text-transform: uppercase; letter-spacing: 0.04em; }
+.api-preview__stale { color: var(--warning); text-transform: none; letter-spacing: 0; }
+.api-preview__info { display: grid; gap: var(--space-2); padding-bottom: var(--space-6); }
+.api-preview__title { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--text-2xl); font-weight: var(--font-weight-semibold); letter-spacing: var(--tracking-tight); }
+.api-preview__summary { margin: 0; color: var(--muted-foreground); }
+.api-preview__server { margin: 0; font-size: var(--text-xs); }
+.api-preview__description { font-size: var(--text-sm); }
+.api-preview__tag { display: grid; gap: var(--space-4); padding: var(--space-6) 0; border-top: 1px solid var(--border); }
+.api-preview__tag-title { margin: 0; font-size: var(--text-xl); font-weight: var(--font-weight-semibold); }
+.api-preview__operation, .api-preview__model { display: grid; gap: var(--space-4); padding: var(--space-4) 0 var(--space-6); scroll-margin-top: var(--space-3); }
+.api-preview__operation + .api-preview__operation, .api-preview__model + .api-preview__model { border-top: 1px dashed var(--border); }
+.api-preview__model-title { margin: 0; font-family: var(--font-mono); font-size: var(--text-base); font-weight: var(--font-weight-semibold); }
+.api-preview__block { display: grid; gap: var(--space-2); }
+.api-preview__block-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); margin: 0; font-size: var(--text-sm); font-weight: var(--font-weight-semibold); }
+.api-preview__meta { color: var(--muted-foreground); font-family: var(--font-mono); font-size: var(--text-xs); font-weight: var(--font-weight-regular, 400); }
+
+@media (max-width: 1000px) {
+  /* Editor and preview stacked. */
+  .api-workspace { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; }
+  .api-workspace .admin-resize { display: none; }
+  .api-workspace > :is(.api-editor, .api-preview, .api-actions) { grid-column: 1; grid-row: auto; }
+  .api-preview { max-height: 70vh; border-top: 1px solid var(--border); }
+  .admin-page--full .api-preview { max-height: 70vh; }
+  .api-editor { border-right: 0; }
+  .admin-page.admin-page--full:has(.api-workspace) { height: auto; }
+  .admin-page--full .api-editor__code.ds-json-editor { flex: 1; min-height: 460px; max-height: 68vh; }
+}
+@media (max-width: 900px) {
+  .api-empty { padding: var(--space-5); }
+}
+
+/* Autocomplete popup and lint tooltips in the design system's colors */
+.code-editor .cm-tooltip { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--popover); color: var(--popover-foreground); box-shadow: var(--shadow-md); font-family: var(--font-sans, inherit); }
+.code-editor .cm-tooltip-autocomplete > ul > li { padding: 2px var(--space-2); }
+.code-editor .cm-tooltip-autocomplete > ul > li[aria-selected] { background: var(--accent); color: var(--foreground); }
+.code-editor .cm-completionDetail { margin-left: var(--space-2); color: var(--muted-foreground); font-style: normal; }
+.code-editor .cm-diagnostic { padding: var(--space-1) var(--space-2); font-size: var(--text-xs); }
+.code-editor .cm-diagnostic-error { border-left-color: var(--destructive); }
+.code-editor .cm-diagnostic-warning { border-left-color: var(--warning); }
+
+/* Wiki: page list, Markdown editor and live preview side by side */
+.wiki {
+  position: relative; display: grid;
+  grid-template-columns: var(--col-list, 220px) minmax(0, calc((100% - var(--col-list, 220px)) * var(--col-split, 0.5))) minmax(0, 1fr);
+  grid-template-rows: auto auto; min-height: 600px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); }
+.wiki-list { grid-row: 1 / span 2; overflow-y: auto; padding: var(--space-3) var(--space-2); border-right: 1px solid var(--border); }
+.wiki-list__heading { display: flex; align-items: center; gap: var(--space-1-5); margin: 0 0 var(--space-2); padding: 0 var(--space-2); color: var(--muted-foreground); font-size: var(--text-xs); font-weight: var(--font-weight-medium); text-transform: uppercase; letter-spacing: 0.04em; }
+.wiki-list__count { padding: 0 var(--space-1-5); border-radius: var(--radius-full); background: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: 0; }
+.wiki-list ol { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.wiki-list__item { position: relative; display: flex; align-items: center; border-radius: var(--radius-md); transition: background var(--duration-fast) var(--ease-standard); }
+.wiki-list__item:hover { background: color-mix(in oklab, var(--accent) 60%, transparent); }
+.wiki-list__item.is-active { background: var(--accent); }
+.wiki-list__button { display: flex; flex: 1; align-items: center; gap: var(--space-2); min-width: 0; height: 32px; padding: 0 var(--space-2) 0 var(--space-3); border: 0; border-radius: var(--radius-md); background: none; color: var(--muted-foreground); font: inherit; text-align: left; cursor: pointer; }
+.wiki-list__button:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+.wiki-list__order { flex: none; min-width: 1.25em; color: var(--muted-foreground); font-family: var(--font-mono); font-size: var(--text-xs); font-variant-numeric: tabular-nums; opacity: 0.7; }
+.wiki-list__title { min-width: 0; overflow: hidden; font-size: var(--text-sm); text-overflow: ellipsis; white-space: nowrap; }
+.wiki-list__item:hover .wiki-list__title, .wiki-list__item.is-active .wiki-list__title { color: var(--foreground); }
+.wiki-list__item.is-active .wiki-list__title { font-weight: var(--font-weight-medium); }
+.wiki-list__dirty { flex: none; width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--warning); }
+.wiki-list__menu { flex: none; margin-right: 2px; opacity: 0; }
+.wiki-list__item:hover .wiki-list__menu, .wiki-list__item.is-active .wiki-list__menu, .wiki-list__menu:focus-visible, .wiki-list__menu[data-state='open'] { opacity: 1; }
+
+.wiki-editor { display: flex; flex-direction: column; min-width: 0; border-right: 1px solid var(--border); }
+.wiki-editor__fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2); padding: var(--space-3); border-bottom: 1px solid var(--border); }
+.wiki-editor__toolbar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-1) var(--space-2) var(--space-1) var(--space-3); border-bottom: 1px solid var(--border); }
+.wiki-editor__code.ds-json-editor { flex: 1; min-height: 460px; max-height: 70vh; border: 0; border-radius: 0; }
+
+.wiki-preview { min-width: 0; max-height: calc(70vh + 110px); overflow-y: auto; padding: var(--space-4) var(--space-6); }
+.wiki-preview__label { margin: 0 0 var(--space-3); color: var(--muted-foreground); font-size: var(--text-xs); font-weight: var(--font-weight-medium); text-transform: uppercase; letter-spacing: 0.04em; }
+.wiki-actions { grid-column: 2 / span 2; position: static; margin: 0; border-width: 1px 0 0; border-radius: 0; box-shadow: none; }
+
+
+/* Drag handles on the column borders (list ↔ editor, editor ↔ preview). */
+.wiki.is-resizing, .api-workspace.is-resizing { cursor: col-resize; user-select: none; }
+
+@media (max-width: 1200px) {
+  .wiki .admin-resize { display: none; }
+  .wiki { grid-template-columns: 200px minmax(0, 1fr); }
+  .wiki-preview { grid-column: 2; border-top: 1px solid var(--border); }
+  .wiki-editor { border-right: 0; }
+  .wiki-actions { grid-column: 2; }
+}
+@media (max-width: 760px) {
+  .wiki { grid-template-columns: 1fr; }
+  .wiki-list { grid-row: auto; max-height: 220px; border-right: 0; border-bottom: 1px solid var(--border); }
+  .wiki-preview, .wiki-actions { grid-column: 1; }
+  .wiki-editor__fields { grid-template-columns: 1fr; }
+}
+
+/* Wiki fills the screen: full width, and the editor area takes all height below the header. */
+.admin-page.admin-page--full { max-width: none; }
+/* With an editor on screen, the page takes the whole viewport and the editor all height left. */
+.admin-main:has(.admin-page--full :is(.wiki, .api-workspace)) { padding-bottom: 0; }
+.admin-page.admin-page--full:has(.wiki, .api-workspace) { display: flex; flex-direction: column; height: calc(100dvh - 56px - var(--space-6)); min-height: 520px; }
+/* No card around the editor: it runs to the edges of the content area, split only by dividers. */
+.admin-page--full :is(.wiki, .api-workspace) {
+  flex: 1; min-height: 0;
+  margin-inline: calc(-1 * var(--space-6)); border-width: 1px 0 0; border-radius: 0; background: var(--background);
+}
+.admin-page--full .wiki { grid-template-rows: minmax(0, 1fr) auto; }
+.admin-page--full .wiki-editor { min-height: 0; }
+.admin-page--full .wiki-editor__code.ds-json-editor { display: flex; flex: 1 1 0; flex-direction: column; min-height: 0; max-height: none; }
+.admin-page--full .wiki-editor__code .cm-editor { flex: 1; min-height: 0; max-height: none; }
+.admin-page--full .wiki-preview { max-height: none; }
+@media (max-width: 1200px) {
+  .admin-page.admin-page--full:has(.wiki) { height: auto; }
+  .admin-page--full .wiki { grid-template-rows: auto; }
+  .admin-page--full .wiki-editor__code.ds-json-editor { flex: 1; min-height: 460px; max-height: 70vh; }
+}
+@media (max-width: 640px) {
+  .admin-main:has(.admin-page--full) { padding-bottom: 0; }
+  .admin-page--full :is(.wiki, .api-workspace) { margin-inline: calc(-1 * var(--space-4)); }
+}
+/* Grid tracks shrink to the column; wide code blocks scroll inside themselves. */
+.api-preview :is(.api-preview__info, .api-preview__tag, .api-preview__operation, .api-preview__model, .api-preview__block) { grid-template-columns: minmax(0, 1fr); }
+.api-preview__note { margin: 0; color: var(--muted-foreground); font-size: var(--text-sm); }
+.api-preview__extras { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
+.api-preview__list { display: grid; gap: var(--space-1); margin: 0; padding-left: var(--space-4); font-size: var(--text-sm); }
+.api-preview__list .api-preview__list { margin-top: var(--space-1); }
+.api-preview__model-title .api-preview__meta { margin-left: var(--space-2); }
+.api-preview__tag-title .api-preview__meta { margin-left: var(--space-2); font-size: var(--text-xs); }
+.api-workspace .api-resize { left: 100%; }
+.api-version-menu a { color: inherit; text-decoration: none; }
