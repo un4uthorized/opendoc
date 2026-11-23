@@ -253,7 +253,7 @@ export function adminRoutes(db: Db, config: Config) {
     await requireProject(db, currentUser(req), projectId, 'admin');
     const { days } = parse(z.object({ days: z.enum(['7', '30', '90']).default('30').transform(Number) }), req.query);
     const since = `now() - make_interval(days => $2)`;
-    const [totals, daily, endpoints, pages, missed] = await Promise.all([
+    const [totals, daily, endpoints, pages, missed, votes, comments] = await Promise.all([
       one<{ visits: number; visitors: number; previous: number; searches: number; missed: number }>(db,
         `SELECT
            count(*) FILTER (WHERE kind = 'view' AND at >= ${since})::int AS visits,
@@ -284,6 +284,15 @@ export function adminRoutes(db: Db, config: Config) {
           WHERE project_id = $1 AND kind = 'search' AND results = 0 AND at >= ${since}
           GROUP BY lower(query) ORDER BY count DESC, term LIMIT 6`,
         [projectId, days]),
+      one<{ yes: number; no: number }>(db,
+        `SELECT count(*) FILTER (WHERE helpful)::int AS yes, count(*) FILTER (WHERE NOT helpful)::int AS no
+           FROM docs_feedback WHERE project_id = $1 AND at >= ${since}`,
+        [projectId, days]),
+      many<{ page: string; label: string | null; helpful: boolean; comment: string; at: Date }>(db,
+        `SELECT page, label, helpful, comment, at FROM docs_feedback
+          WHERE project_id = $1 AND comment IS NOT NULL AND at >= ${since}
+          ORDER BY at DESC LIMIT 20`,
+        [projectId, days]),
     ]);
     res.json({
       days,
@@ -296,6 +305,11 @@ export function adminRoutes(db: Db, config: Config) {
       endpoints: endpoints.map((row) => ({ method: row.method, path: row.path, label: row.label ?? undefined, views: row.views })),
       pages: pages.map((row) => ({ page: row.page, title: row.label ?? row.page, views: row.views })),
       missedSearches: missed,
+      feedback: {
+        yes: votes?.yes ?? 0,
+        no: votes?.no ?? 0,
+        comments: comments.map((row) => ({ page: row.page, title: row.label ?? row.page, helpful: row.helpful, comment: row.comment, at: row.at.toISOString() })),
+      },
     });
   }));
 

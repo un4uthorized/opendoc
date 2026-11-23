@@ -12,6 +12,7 @@ import { authApi } from '../../auth/api';
 import { useSession } from '../../auth/useSession';
 import { docsSource } from './source';
 import { track } from './track';
+import { PageFeedback } from './PageFeedback';
 import { Playground, PlaygroundCode, PlaygroundProvider, schemeLabel, usePlayground, type PlaygroundState } from './Playground';
 import { useDocsMessages } from './messages';
 import {
@@ -293,15 +294,18 @@ function DocsNav({ active, onNavigate, navRef }: { active?: string; onNavigate?:
   );
 }
 
-/** "Previous / Next" at the end of a page or endpoint, in sidebar order. */
+/** "Esta página ajudou?" and "Previous / Next" at the end of a page or endpoint, in sidebar order. */
 function Pager({ id }: { id: string }) {
   const t = useDocsMessages();
   const items = [{ id: introId, label: t.overview }, ...sequence];
   const index = items.findIndex((item) => item.id === id);
   const previous = items[index - 1];
   const next = items[index + 1];
-  if (!previous && !next) return null;
+  const feedback = <PageFeedback page={id} label={items[index]?.label} />;
+  if (!previous && !next) return feedback;
   return (
+    <>
+    {feedback}
     <nav className="rd-pager" aria-label={t.pagination}>
       {previous ? (
         <a href={`#${previous.id}`} className="rd-pager__link" rel="prev">
@@ -316,6 +320,7 @@ function Pager({ id }: { id: string }) {
         </a>
       )}
     </nav>
+    </>
   );
 }
 

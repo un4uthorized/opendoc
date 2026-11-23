@@ -34,8 +34,25 @@ const event = z.discriminatedUnion('kind', [
   }).strict(),
 ]);
 
+const feedback = z.object({
+  page: z.string().min(1).max(200),
+  label: z.string().max(300).optional(),
+  helpful: z.boolean(),
+  comment: z.string().trim().max(2000).optional(),
+}).strict();
+
 export function docsRoutes(db: Db, config: Config) {
   const router = Router();
+
+  /**
+   * Who is reading, without knowing who: a hash of the day, the IP and the browser, salted with a
+   * server secret. Unique readers can be counted, but nobody can be followed across days or
+   * identified from the database.
+   */
+  const visitorOf = (req: Request) => {
+    const day = new Date().toISOString().slice(0, 10);
+    return sha256(`${config.mfaKey.toString('base64')}:${day}:${req.ip ?? ''}:${req.get('user-agent') ?? ''}`);
+  };
 
   /** The project behind a docs address, if this visitor may read it (private ones: members only). */
   async function visibleProject(req: Request) {
@@ -59,8 +76,7 @@ export function docsRoutes(db: Db, config: Config) {
     const input = parse(event, req.body);
     const project = await visibleProject(req);
     await hit(db, `events:ip:${sha256(req.ip ?? '')}`, 1000);
-    const day = new Date().toISOString().slice(0, 10);
-    const visitor = sha256(`${config.mfaKey.toString('base64')}:${day}:${req.ip ?? ''}:${req.get('user-agent') ?? ''}`);
+    const visitor = visitorOf(req);
     if (input.kind === 'view') {
       await db.query(
         'INSERT INTO docs_events (project_id, kind, page, label, method, path, visitor) VALUES ($1, $2, $3, $4, $5, $6, $7)',
@@ -70,6 +86,20 @@ export function docsRoutes(db: Db, config: Config) {
         'INSERT INTO docs_events (project_id, kind, query, results, visitor) VALUES ($1, $2, $3, $4, $5)',
         [project.id, 'search', input.query, input.results, visitor]);
     }
+    res.status(204).end();
+  }));
+
+  /**
+   * "Esta página ajudou?": yes or no for one docs page, with an optional comment. Counted once
+   * per answer; the reader's browser keeps them from answering the same page twice.
+   */
+  router.post('/docs/:slug/feedback', route(async (req, res) => {
+    const input = parse(feedback, req.body);
+    const project = await visibleProject(req);
+    await hit(db, `feedback:ip:${sha256(req.ip ?? '')}`, 60);
+    await db.query(
+      'INSERT INTO docs_feedback (project_id, page, label, helpful, comment, visitor) VALUES ($1, $2, $3, $4, $5, $6)',
+      [project.id, input.page, input.label ?? null, input.helpful, input.comment || null, visitorOf(req)]);
     res.status(204).end();
   }));
 

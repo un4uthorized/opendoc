@@ -531,3 +531,21 @@
 .admin-analytics-skeleton { height: 132px; border-radius: var(--radius-xl); }
 .admin-analytics { display: grid; gap: var(--space-6); transition: opacity var(--duration-fast) var(--ease-standard); }
 .admin-analytics.is-loading { opacity: 0.6; }
+
+/* Line tabs whose underline runs the full width of the page (Usuários): only the line stretches,
+   each tab keeps the width of its label. */
+.ds-tabs__list.admin-tabs-full { width: 100%; justify-content: flex-start; }
+.ds-tabs__list.admin-tabs-full .ds-tabs__trigger { flex: none; }
+
+/* Analytics: comments from "Esta página ajudou?" */
+.admin-feedback-list { display: grid; margin: 0; padding: 0; list-style: none; }
+.admin-feedback { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: var(--space-3); padding: var(--space-3) 0; border-top: 1px solid var(--border); font-size: var(--text-sm); }
+.admin-feedback:first-child { border-top: 0; padding-top: 0; }
+.admin-feedback__vote { display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--radius-full, 999px); background: var(--muted); color: var(--muted-foreground); }
+.admin-feedback__vote svg { width: 14px; height: 14px; }
+.admin-feedback__vote.is-yes { background: color-mix(in oklab, var(--success, #16a34a) 14%, transparent); color: var(--success, #16a34a); }
+.admin-feedback__vote.is-no { background: color-mix(in oklab, var(--destructive) 12%, transparent); color: var(--destructive); }
+.admin-feedback__body { display: grid; gap: 2px; min-width: 0; }
+.admin-feedback__page { margin: 0; color: var(--muted-foreground); font-size: var(--text-xs); }
+.admin-feedback__comment { margin: 0; overflow-wrap: anywhere; white-space: pre-line; }
+.admin-feedback time { font-size: var(--text-xs); white-space: nowrap; }

@@ -167,7 +167,7 @@ export function UsersView({ project }: { project: Project }) {
       />
 
       <Tabs defaultValue="users">
-        <TabsList variant="line" aria-label="Usuários e convites">
+        <TabsList variant="line" aria-label="Usuários e convites" className="admin-tabs-full">
           <TabsTrigger value="users">Com acesso <Badge variant="secondary">{rows.length}</Badge></TabsTrigger>
           <TabsTrigger value="invites">Convites pendentes <Badge variant="secondary">{invitations.length}</Badge></TabsTrigger>
         </TabsList>

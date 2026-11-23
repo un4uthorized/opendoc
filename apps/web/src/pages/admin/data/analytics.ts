@@ -15,6 +15,12 @@ export interface Analytics {
   endpoints: Array<{ method: string; path: string; label?: string; views: number }>;
   pages: Array<{ page: string; title: string; views: number }>;
   missedSearches: Array<{ term: string; count: number }>;
+  /** "Esta página ajudou?" answers in the period, and the latest ones with a comment. */
+  feedback: {
+    yes: number;
+    no: number;
+    comments: Array<{ page: string; title: string; helpful: boolean; comment: string; at: string }>;
+  };
 }
 
 /** Loads the numbers for a period; `key` (e.g. the project's updatedAt) reloads them. */

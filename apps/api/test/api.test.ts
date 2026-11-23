@@ -79,6 +79,8 @@ describe('conta de configuração', () => {
 describe('autenticação', () => {
   const admin = { email: 'admin@example.com', password: 'admin-password-123456' };
   let secret = '';
+  /** The exact code used at enrollment: replaying it must fail, whatever the clock says. */
+  let enrollmentCode = '';
   let recoveryCodes: string[] = [];
 
   test('admin convidado precisa configurar o autenticador antes de liberar o acesso', async () => {
@@ -93,7 +95,8 @@ describe('autenticação', () => {
     assert.match(setup.body.qrCode, /^data:image\/png;base64,/);
 
     assert.equal((await client.post('/api/auth/mfa/enable', { code: '000000' })).status, 400);
-    const enable = await client.post('/api/auth/mfa/enable', { code: totp(setup.body.secret) });
+    enrollmentCode = totp(setup.body.secret);
+    const enable = await client.post('/api/auth/mfa/enable', { code: enrollmentCode });
     assert.equal(enable.status, 200);
     assert.equal(enable.body.recoveryCodes.length, 10);
     secret = setup.body.secret;
@@ -119,7 +122,7 @@ describe('autenticação', () => {
     const client = server.client();
     assert.deepEqual((await client.post('/api/auth/login', admin)).body, { stage: 'mfa' });
     // The code used at enrollment can't be used again.
-    assert.equal((await client.post('/api/auth/mfa/verify', { code: totp(secret) })).status, 401);
+    assert.equal((await client.post('/api/auth/mfa/verify', { code: enrollmentCode })).status, 401);
     const verified = await client.post('/api/auth/mfa/verify', { code: totp(secret, 1) });
     assert.equal(verified.status, 200);
     assert.equal(verified.body.stage, 'active');
@@ -358,6 +361,23 @@ describe('projetos, convites e permissões', () => {
     assert.equal(body.searchesWithoutResults, 2);
     assert.deepEqual(body.missedSearches, [{ term: 'webhook', count: 2 }]);
     assert.equal((await admin.get(`/api/projects/${projectId}/analytics?days=12`)).status, 400);
+  });
+
+  test('"Esta página ajudou?" guarda sim/não e comentários, e o analytics mostra', async () => {
+    const feedback = `/api/docs/pagamentos/feedback`;
+    assert.equal((await server.client().post(feedback, { page: 'list-posts', helpful: true })).status, 404);
+    assert.equal((await admin.post(feedback, { page: 'list-posts', helpful: true, comment: 'x'.repeat(2001) })).status, 400);
+    assert.equal((await admin.post(feedback, { page: 'list-posts', label: 'Listar posts', helpful: true })).status, 204);
+    assert.equal((await admin.post(feedback, { page: 'pagina-inicio', label: 'Início', helpful: true, comment: 'Bem claro.' })).status, 204);
+    assert.equal((await admin.post(feedback, { page: 'list-posts', label: 'Listar posts', helpful: false, comment: '  Faltou um exemplo de paginação.  ' })).status, 204);
+
+    const { feedback: result } = (await admin.get(`/api/projects/${projectId}/analytics?days=7`)).body;
+    assert.equal(result.yes, 2);
+    assert.equal(result.no, 1);
+    assert.deepEqual(result.comments.map((item: any) => [item.title, item.helpful, item.comment]), [
+      ['Listar posts', false, 'Faltou um exemplo de paginação.'],
+      ['Início', true, 'Bem claro.'],
+    ]);
   });
 
   test('páginas mudam de ordem e versões padrão não podem ser excluídas', async () => {

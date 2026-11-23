@@ -782,3 +782,15 @@
 /* Thin, quiet scrollbars in the test client: visible enough to grab, darker on hover. */
 .rd-pm :is(.rd-pm__panel, .ds-code__pre) { scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--muted-foreground) 35%, transparent) transparent; }
 .rd-pm :is(.rd-pm__panel, .ds-code__pre):hover { scrollbar-color: color-mix(in oklab, var(--muted-foreground) 60%, transparent) transparent; }
+
+/* "Esta página ajudou?" before the pager */
+.rd-feedback { display: grid; gap: var(--space-4); margin-top: var(--space-8); padding: var(--space-4) var(--space-5); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card, var(--background)); }
+.rd-feedback__ask { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.rd-feedback__question { margin: 0; font-size: var(--text-sm); font-weight: var(--font-weight-medium); }
+.rd-feedback__votes { display: flex; gap: var(--space-2); }
+.rd-feedback__form { display: grid; gap: var(--space-3); }
+.rd-feedback__actions { display: flex; justify-content: flex-end; gap: var(--space-2); }
+.rd-feedback--done { display: flex; align-items: center; gap: var(--space-2); color: var(--muted-foreground); }
+.rd-feedback--done p { margin: 0; font-size: var(--text-sm); }
+.rd-feedback--done svg { width: 16px; height: 16px; color: var(--success, currentColor); flex: none; }
+.rd-feedback + .rd-pager { margin-top: var(--space-4); }

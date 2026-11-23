@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, Search, Users } from 'lucide-react';
+import { Eye, MessageSquare, Search, ThumbsDown, ThumbsUp, Users } from 'lucide-react';
 import {
   Alert, Card, CardContent, CardHeader, EmptyState, MethodBadge, Skeleton, Sparkline, StatCard, Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
   ToggleGroup, ToggleGroupItem, type HttpMethod,
@@ -7,6 +7,7 @@ import {
 import { useAnalytics, type Period } from '../data/analytics';
 import type { Project } from '../data/types';
 import { PageHeader } from '../parts';
+import { formatDate, timeAgo } from '../format';
 
 const periods: Array<{ value: Period; label: string }> = [{ value: '7', label: '7 dias' }, { value: '30', label: '30 dias' }, { value: '90', label: '90 dias' }];
 
@@ -23,6 +24,7 @@ export function AnalyticsView({ project }: { project: Project }) {
   const [period, setPeriod] = useState<Period>('30');
   const { data, error, loading } = useAnalytics(project.id, period);
   const published = project.versions.some((version) => version.publishedAt);
+  const votes = data ? data.feedback.yes + data.feedback.no : 0;
 
   return (
     <div className="admin-page">
@@ -42,7 +44,7 @@ export function AnalyticsView({ project }: { project: Project }) {
         <Alert variant="destructive" title="Não foi possível carregar os números">{error}</Alert>
       ) : !data ? (
         <div className="admin-stat-grid" aria-busy="true">
-          {[0, 1, 2].map((index) => <Skeleton key={index} className="admin-analytics-skeleton" />)}
+          {[0, 1, 2, 3].map((index) => <Skeleton key={index} className="admin-analytics-skeleton" />)}
         </div>
       ) : (
         <div className={loading ? 'admin-analytics is-loading' : 'admin-analytics'} aria-busy={loading}>
@@ -69,9 +71,15 @@ export function AnalyticsView({ project }: { project: Project }) {
               value={number(data.searches)}
               description={data.searches ? `${number(data.searchesWithoutResults)} sem resultado` : 'feitas no ⌘K da documentação'}
             />
+            <StatCard
+              icon={<ThumbsUp />}
+              label="Isto ajudou?"
+              value={votes ? `${Math.round((data.feedback.yes / votes) * 100)}%` : '0%'}
+              description={votes ? `${number(data.feedback.yes)} sim · ${number(data.feedback.no)} não` : 'respostas ao fim de cada página'}
+            />
           </div>
 
-          {data.visits === 0 && data.searches === 0 ? (
+          {data.visits === 0 && data.searches === 0 && votes === 0 ? (
             <EmptyState icon={<Eye />} titleAs="h2" title="Sem visitas nesse período" description="Assim que alguém abrir a documentação publicada, as visitas aparecem aqui." />
           ) : (
             <div className="admin-columns">
@@ -118,6 +126,31 @@ export function AnalyticsView({ project }: { project: Project }) {
               </div>
             </div>
           )}
+
+          <Card>
+            <CardHeader title="Feedback dos leitores" description="Comentários deixados em “Esta página ajudou?”." />
+            <CardContent>
+              {data.feedback.comments.length === 0 ? (
+                <EmptyState icon={<MessageSquare />} titleAs="h3" title="Nenhum comentário nesse período" description="Quem responder “Esta página ajudou?” pode deixar um comentário, que aparece aqui." />
+              ) : (
+                <ul role="list" className="admin-feedback-list">
+                  {data.feedback.comments.map((item, index) => (
+                    <li key={`${item.at}-${index}`} className="admin-feedback">
+                      <span className={item.helpful ? 'admin-feedback__vote is-yes' : 'admin-feedback__vote is-no'} title={item.helpful ? 'Ajudou' : 'Não ajudou'}>
+                        {item.helpful ? <ThumbsUp aria-hidden="true" /> : <ThumbsDown aria-hidden="true" />}
+                        <span className="ds-sr-only">{item.helpful ? 'Ajudou' : 'Não ajudou'}</span>
+                      </span>
+                      <div className="admin-feedback__body">
+                        <p className="admin-feedback__page">{item.title}</p>
+                        <p className="admin-feedback__comment">{item.comment}</p>
+                      </div>
+                      <time dateTime={item.at} title={formatDate(item.at)} className="admin-muted">{timeAgo(item.at)}</time>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>
