@@ -1,0 +1,750 @@
+/* API reference page (rd-*), built on the design system. */
+
+/* Small text scale of the docs UI: three sizes only.
+   label 11px: badges, counts, methods in lists · xs 12px: secondary text, tables · ui 13px: navigation, fields. */
+/* Also on the sheets, which render in a portal outside .rd. */
+.rd, .rd-sheet, .rd-try-sheet {
+  --rd-text-label: 11px;
+  --rd-text-xs: var(--text-xs);
+  --rd-text-ui: 13px;
+}
+.rd { min-height: 100vh; background: var(--background); }
+
+.rd-skip {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: var(--z-toast);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: var(--text-sm);
+  transform: translateY(-200%);
+}
+.rd-skip:focus-visible { transform: none; box-shadow: var(--ring-focus); }
+
+/* ── Layout: full-height sidebar | column (top bar + content) ───────── */
+.rd-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); min-height: 100vh; transition: grid-template-columns var(--duration-base) var(--ease-standard); }
+/* Collapsed: the column shrinks to 0 and the sidebar slides out with it. */
+.rd-layout[data-nav='collapsed'] { grid-template-columns: 0 minmax(0, 1fr); }
+.rd-layout[data-nav='collapsed'] .rd-sidebar { border-right-width: 0; visibility: hidden; transition: visibility 0s var(--duration-base), border-color var(--duration-base); }
+@media (prefers-reduced-motion: reduce) { .rd-layout { transition: none; } }
+.rd-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-width: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+}
+/* Keep the content at full width while the column animates, instead of reflowing it. */
+.rd-sidebar > * { min-width: 259px; }
+.rd-sidebar__header { display: flex; flex: none; align-items: center; justify-content: center; height: 56px; padding: 0 var(--space-6); border-bottom: 1px solid var(--border); }
+.rd-sidebar .rd-nav { flex: 1; min-height: 0; height: auto; }
+.rd-powered {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 56px;
+  margin: 0;
+  padding: 0 var(--space-4);
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+  text-decoration: none;
+  outline: none;
+}
+.rd-powered strong { color: var(--foreground); font-weight: var(--font-weight-semibold); text-decoration: underline; text-decoration-color: color-mix(in oklab, var(--foreground) 35%, transparent); text-underline-offset: 2px; transition: text-decoration-color var(--duration-fast) var(--ease-standard); }
+.rd-powered:hover strong { text-decoration-color: var(--foreground); }
+.rd-powered:focus-visible { box-shadow: var(--ring-focus); border-radius: var(--radius-sm); }
+.rd-powered svg { flex: none; border-radius: 5px; }
+.rd-column { display: flex; flex-direction: column; min-width: 0; }
+
+/* ── Top bar ────────────────────────────────────────────────────────── */
+/* Three areas: start (menu + brand on small screens) | search, centered | account. */
+.rd-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 440px) minmax(0, 1fr);
+  height: 56px;
+  padding: 0 var(--space-4) 0 var(--space-6);
+}
+.rd-header .rd-header__search { grid-column: 2; width: 100%; }
+.rd-header__end { grid-column: 3; justify-self: end; }
+/* Account button: avatar + name (the email stays in the menu). */
+.rd-header__user.ds-user-menu--named {
+  width: auto;
+  max-width: 240px;
+  height: var(--control-sm);
+  gap: var(--space-2);
+  padding: 0 var(--space-2-5) 0 var(--space-2);
+  border-radius: var(--radius-md);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.rd-header__user.ds-user-menu--named:hover,
+.rd-header__user.ds-user-menu--named[data-state='open'] { background: var(--accent); }
+.rd-header__user .ds-user-menu__name { overflow: hidden; font-size: var(--text-sm); font-weight: var(--font-weight-medium); line-height: var(--leading-sm); text-overflow: ellipsis; white-space: nowrap; }
+.rd-header__user .ds-user-menu__text { gap: 0; text-align: left; }
+/* Gear before the name. */
+.rd-header__user .ds-user-menu__icon { order: -1; }
+.rd-header__user .ds-avatar { --_size: 24px; }
+.rd-header__user .ds-user-menu__text .ds-user-menu__email { display: none; }
+/* Menu button and brand only when the sidebar is hidden. */
+/* Start of the top bar. Desktop: the collapse toggle, plus the brand while the sidebar is hidden.
+   Small screens: the drawer menu and the brand. */
+.rd-header__start { display: flex; }
+.rd-header__menu { display: none; }
+.rd-header__brand { display: none; }
+.rd-layout[data-nav='collapsed'] .rd-header__brand { display: flex; }
+.rd-brand-group { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
+.rd-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--foreground);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  outline: none;
+}
+.rd-brand:focus-visible { box-shadow: var(--ring-focus); }
+.rd-brand__name { font-weight: var(--font-weight-semibold); }
+/* Brand fallbacks: logo → symbol + name → name only. */
+.rd-brand__symbol { flex: none; width: 24px; height: 24px; border-radius: 6px; object-fit: contain; }
+.rd-brand__logo { flex: none; height: 24px; width: auto; max-width: 140px; object-fit: contain; }
+.rd-brand__section { margin-left: calc(var(--space-1) * -1); }
+.rd-themed--dark { display: none; }
+:root[data-theme='dark'] .rd-themed--light { display: none; }
+:root[data-theme='dark'] .rd-themed--dark { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .rd-themed--light { display: none; }
+  :root:not([data-theme='light']) .rd-themed--dark { display: block; }
+}
+.rd-brand__section { color: var(--muted-foreground); }
+/* Theme row in the account menu: label + segmented control. */
+.rd-theme-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-2); }
+.rd-theme-row__label { color: var(--foreground); font-size: var(--text-sm); }
+.rd-theme-row__group { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--border); border-radius: var(--radius-full); }
+.rd-theme-row__option {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  color: var(--muted-foreground);
+  cursor: pointer;
+  outline: none;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+.rd-theme-row__option svg { width: 14px; height: 14px; }
+.rd-theme-row__option[data-highlighted] { color: var(--foreground); }
+.rd-theme-row__option:focus-visible { box-shadow: var(--ring-focus); }
+.rd-theme-row__option:hover { color: var(--foreground); }
+.rd-theme-row__option[data-state='checked'] { background: var(--accent); color: var(--foreground); }
+
+/* ── Navigation ─────────────────────────────────────────────────────── */
+.rd-nav {
+  display: grid;
+  align-content: start;
+  gap: var(--space-6);
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-6) var(--space-5) var(--space-8) var(--space-4);
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.rd-nav:hover, .rd-nav:focus-within { scrollbar-color: color-mix(in oklch, var(--foreground) 20%, transparent) transparent; }
+/* Scalar-style tree: the guide page with its sections, then collapsible groups with nested endpoints. */
+.rd-nav { grid-template-columns: minmax(0, 1fr); gap: 0; overflow-x: hidden; }
+/* Space between groups. */
+.rd-nav__group { margin-top: var(--space-4); }
+/* Section labels: Guide, API reference. */
+.rd-nav__section {
+  margin: var(--space-8) 0 var(--space-2);
+  padding: 0 var(--space-2);
+  color: var(--muted-foreground);
+  font-size: var(--rd-text-xs);
+  font-weight: var(--font-weight-medium);
+}
+.rd-nav__section:first-child { margin-top: 0; }
+.rd-nav__section + .rd-nav__group { margin-top: 0; }
+/* Guide: a flat list of pages, each with a document icon (no nesting, unlike the API folders). */
+.rd-nav__page-icon { flex: none; width: 16px; height: 16px; color: var(--muted-foreground); }
+.rd-nav a[aria-current] .rd-nav__page-icon, .rd-nav a:hover .rd-nav__page-icon { color: var(--foreground); }
+.rd-nav .rd-nav__list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; margin: 0; padding: 0; list-style: none; }
+/* Endpoints nest under their folder: the text lines up with the group name (icon 16px + gap 8px).
+   `.rd-nav` raises specificity over base.css's ul[role='list'] reset. */
+.rd-nav .rd-nav__list--nested { margin: var(--space-1) 0 0; padding-left: calc(16px + var(--space-2)); }
+/* File tree: a line from the folder icon (centered under the 16px icon) down the group, with a rounded
+   elbow into each endpoint. Each row draws its own piece: the elbow from the row above (2px list gap)
+   to its middle, and, except the last row, the trunk continuing down to the next row. */
+/* Opaque line color: --border is translucent in dark mode, so the overlapping pieces showed brighter. */
+.rd-nav .rd-nav__list--nested { --rd-tree-line: light-dark(var(--neutral-200), var(--neutral-800)); }
+.rd-nav .rd-nav__list--nested > li { position: relative; }
+.rd-nav .rd-nav__list--nested > li::before,
+.rd-nav .rd-nav__list--nested > li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: -8.5px;
+  border-left: 1px solid var(--rd-tree-line);
+  pointer-events: none;
+}
+.rd-nav .rd-nav__list--nested > li::before {
+  top: -2px;
+  width: 8.5px;
+  height: calc(50% + 2.5px);
+  border-bottom: 1px solid var(--rd-tree-line);
+  border-bottom-left-radius: 6px;
+}
+.rd-nav .rd-nav__list--nested > li:not(:last-child)::after { top: -2px; bottom: 0; }
+.rd-nav .rd-nav__list[hidden] { display: none; }
+.rd-nav__group, .rd-nav li, .rd-nav a, .rd-nav__folder { min-width: 0; }
+.rd-nav a, .rd-nav__folder {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--rd-text-ui);
+  text-align: left;
+  text-decoration: none;
+  outline: none;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+.rd-nav a { color: var(--muted-foreground); }
+.rd-nav__folder { color: var(--foreground); font-weight: var(--font-weight-medium); }
+.rd-nav a:hover, .rd-nav__folder:hover { background: var(--accent); color: var(--foreground); }
+.rd-nav a:focus-visible, .rd-nav__folder:focus-visible { box-shadow: var(--ring-focus); }
+.rd-nav a[aria-current] { background: var(--accent); color: var(--foreground); font-weight: var(--font-weight-medium); }
+/* Accordion chevron on the right: points right when closed, down when open. */
+.rd-nav__folder-icon { flex: none; width: 16px; height: 16px; color: var(--muted-foreground); }
+.rd-nav__chevron { flex: none; order: 1; width: 14px; height: 14px; color: var(--muted-foreground); transition: transform var(--duration-base) var(--ease-standard); }
+.rd-nav__folder[aria-expanded='true'] .rd-nav__chevron { transform: rotate(90deg); }
+.rd-nav__label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Method as colored text on the right, like Scalar (no pill). */
+.rd-nav__method.ds-method { flex: none; font-size: var(--rd-text-label); letter-spacing: 0.02em; text-transform: uppercase; }
+
+.rd-sheet { width: 300px; max-width: 85vw; padding: 0; }
+.rd-sheet .rd-nav { height: auto; flex: 1; min-height: 0; padding-top: 0; }
+
+/* ── Main area: rows of [content | examples] ───────────────────────── */
+/* Every row shares the same two columns, so the right column reads as one continuous panel. */
+.rd-main {
+  /* Width of the examples column: user-set (--rd-aside-w, px) or 45%, always kept between
+     360px and "leave 400px for the content". Percentages here resolve against .rd-main. */
+  /* The content column never gets narrower than this (keep in sync with CONTENT_MIN). */
+  --rd-content-min: 480px;
+  --rd-aside: clamp(360px, var(--rd-aside-w, 45%), max(360px, calc(100% - var(--rd-content-min))));
+  min-width: 0;
+  outline: none;
+  /* Fills the height under the header, so a short page still has its footer at the bottom. */
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+.rd-rows { position: relative; display: flex; flex: 1; flex-direction: column; }
+.rd-row { display: grid; grid-template-columns: minmax(0, 1fr) var(--rd-aside); }
+/* Guide: a single reading column, kept at a comfortable line length. */
+.rd-rows--single .rd-row { grid-template-columns: minmax(0, 1fr); }
+.rd-rows--single .rd-row__content { width: 100%; max-width: 920px; }
+.rd-rows--single .rd-row__aside { display: none; }
+
+/* Splitter on the column border: a wide invisible hit area with a thin line on hover/drag/focus. */
+.rd-resizer {
+  position: absolute;
+  top: 0;
+  right: var(--rd-aside);
+  bottom: 0;
+  z-index: 2;
+  width: 12px;
+  cursor: col-resize;
+  outline: none;
+  touch-action: none;
+  transform: translateX(50%);
+}
+.rd-resizer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: transparent;
+  transform: translateX(-50%);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.rd-resizer:hover::after, .rd-resizer.is-dragging::after { background: var(--ring); }
+.rd-resizer:focus-visible::after { width: 3px; background: var(--ring); box-shadow: var(--ring-focus); }
+.rd-resizer.is-dragging { cursor: col-resize; }
+/* No text selection while dragging. */
+.rd-main:has(.rd-resizer.is-dragging) { user-select: none; cursor: col-resize; }
+/* minmax(0, 1fr): children (long code lines, tables, the steps strip) shrink to the column instead of
+   widening it and spilling under the examples column. The column is a size container so its parts
+   adapt to its own width (it changes with the sidebar and the resizable examples column). */
+.rd-row__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-12) var(--space-10);
+  container-type: inline-size;
+  container-name: rd-content;
+}
+.rd-row__content > * { min-width: 0; }
+.rd-row__aside {
+  min-width: 0;
+  padding: var(--space-12) var(--space-6);
+  border-left: 1px solid var(--border);
+  background: color-mix(in oklch, var(--muted) 45%, transparent);
+}
+.rd-row__sticky { position: sticky; top: calc(56px + var(--space-6)); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+/* Long samples scroll inside their block so the sticky column fits the viewport. */
+.rd-row__sticky .ds-code__pre { max-height: max(160px, calc((100vh - 390px) / 2)); overflow: auto; }
+
+/* Intro (center column): compact hero + quick-start steps, then the guide. */
+.rd-intro { scroll-margin-top: 56px; }
+.rd-intro .rd-row__content { gap: var(--space-8); }
+.rd-hero { display: grid; justify-items: start; gap: var(--space-3); }
+.rd-hero__title { max-width: 20ch; font-size: var(--text-4xl); font-weight: var(--font-weight-semibold); letter-spacing: var(--tracking-tight); line-height: 1.1; text-wrap: balance; }
+.rd-hero__lead { max-width: 60ch; color: var(--muted-foreground); font-size: var(--text-md); line-height: var(--leading-relaxed); }
+.rd-hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
+.rd-hero__meta { margin-left: var(--space-1); color: var(--muted-foreground); font-family: var(--font-mono); font-size: var(--text-xs); }
+.rd-hero .rd-servers { width: 100%; margin-top: var(--space-3); }
+
+/* Quick start: three numbered steps side by side, one bordered strip. */
+.rd-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-lg); list-style: none; }
+.rd-steps > li + li { border-left: 1px solid var(--border); }
+.rd-steps__link {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  height: 100%;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.rd-steps__link:hover { background: color-mix(in oklab, var(--muted) 60%, transparent); }
+.rd-steps__link:focus-visible { box-shadow: inset var(--ring-focus); }
+.rd-steps__number { color: var(--muted-foreground); font-family: var(--font-mono); font-size: var(--text-xs); }
+.rd-steps__body { display: grid; gap: 2px; }
+.rd-steps__title { font-size: var(--text-sm); font-weight: var(--font-weight-semibold); }
+.rd-steps__text { color: var(--muted-foreground); font-size: var(--text-xs); line-height: var(--leading-xs); }
+.rd-steps__text code { font-family: var(--font-mono); font-size: 0.95em; }
+
+.rd-guide__prose :is(h2, h3) { scroll-margin-top: 80px; }
+.rd-guide__prose > :first-child { margin-top: 0; }
+.rd-servers { display: grid; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--background); }
+.rd-servers__row { display: flex; align-items: center; gap: var(--space-3); min-height: var(--control-lg); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); }
+.rd-servers__row + .rd-servers__row { border-top: 1px solid var(--border); }
+.rd-servers dt { width: 72px; flex: none; color: var(--muted-foreground); font-size: var(--text-sm); }
+.rd-servers dd { display: flex; flex: 1; align-items: center; justify-content: space-between; gap: var(--space-2); min-width: 0; }
+.rd-servers code { min-width: 0; overflow: hidden; font-family: var(--font-mono); font-size: var(--text-xs); text-overflow: ellipsis; white-space: nowrap; }
+
+/* Tag = a group of operations. */
+
+.rd-operation { scroll-margin-top: 56px; }
+.rd-operation .rd-row__content { gap: var(--space-8); }
+.rd-operation .ds-endpoint__description code { font-family: var(--font-mono); font-size: 0.9em; }
+
+.rd-block { display: grid; gap: var(--space-3); }
+.rd-block__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--text-md);
+  font-weight: var(--font-weight-semibold);
+}
+/* Responses in the center column: the panel's header reads like the other block titles. */
+.rd-block--responses .ds-responses__header { padding-bottom: var(--space-2); border-bottom: 1px solid var(--border); }
+.rd-block--responses .ds-responses__title { font-size: var(--text-md); font-weight: var(--font-weight-semibold); }
+.rd-block__meta { color: var(--muted-foreground); font-family: var(--font-mono); font-size: var(--text-xs); font-weight: var(--font-weight-regular); }
+
+/* A thin strip, the same height as the sidebar's "Powered by" block (.rd-powered, 56px with its
+   border), so both top borders line up across the page. */
+.rd-footer { box-sizing: border-box; min-height: 56px; margin-top: auto; border-top: 1px solid var(--border); }
+.rd-footer .rd-row__content { display: flex; flex-wrap: wrap; align-items: center; padding-block: var(--space-2); color: var(--muted-foreground); font-size: var(--text-xs); }
+.rd-footer .rd-row__content > * { margin: 0; }
+.rd-footer .rd-row__aside { padding: 0; }
+.rd-footer code { font-family: var(--font-mono); font-size: var(--text-xs); }
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+/* Medium: sidebar moves to the drawer; content and examples stay side by side. */
+@media (max-width: 1100px) {
+  .rd-layout { grid-template-columns: minmax(0, 1fr); }
+  .rd-sidebar { display: none; }
+  .rd-header { padding-left: var(--space-2); }
+  .rd-header__menu, .rd-header__brand { display: flex; }
+  .rd-header__toggle { display: none; }
+  .rd-row__content { padding: var(--space-10) var(--space-6); }
+  .rd-row__aside { padding: var(--space-10) var(--space-5); }
+}
+/* Small: one column, examples right after their content. 860px = content minimum (480) + examples minimum (360) + slack, so two columns never squeeze the content below its minimum. */
+@media (max-width: 860px) {
+  .rd-row { grid-template-columns: minmax(0, 1fr); }
+  .rd-resizer { display: none; }
+  .rd-row__content { padding: var(--space-8) var(--space-5) var(--space-6); }
+  .rd-row__aside { padding: 0 var(--space-5) var(--space-8); border-left: 0; background: none; }
+  .rd-row__aside:empty { display: none; }
+  .rd-row__sticky { position: static; }
+  .rd-row__sticky .ds-code__pre { max-height: none; }
+}
+@media (max-width: 560px) {
+  .rd-steps { grid-template-columns: minmax(0, 1fr); }
+  .rd-steps > li + li { border-top: 1px solid var(--border); border-left: 0; }
+  .rd-header { grid-template-columns: minmax(0, 1fr) auto auto; }
+  /* Small screens: the gear alone. */
+  .rd-header__user .ds-user-menu__text { display: none; }
+  .rd-header__user.ds-user-menu--named { justify-content: center; width: var(--control-sm); height: var(--control-sm); padding: 0; }
+  .rd-header .rd-header__search { justify-content: center; width: var(--control-sm); padding: 0; }
+  .rd-servers dt { width: auto; }
+  .rd-header__search .ds-navbar__search-text,
+  .rd-header__search .ds-navbar__search-kbd { display: none; }
+  .rd-hero__title { font-size: var(--text-3xl); }
+}
+
+/* ── Playground (right column) ──────────────────────────────────────── */
+/* The column scrolls on its own when the playground, code and responses are taller than the screen. */
+.rd-operation .rd-row__sticky { max-height: calc(100vh - 56px - var(--space-12)); overflow-y: auto; overscroll-behavior: contain; margin: 0 calc(var(--space-1) * -1); padding: 0 var(--space-1) var(--space-1); scrollbar-width: thin; }
+/* Right column sections: test client, code sample, documented responses. Each has a title
+   row (title left, control right) and a divider above it. */
+.rd-aside-block { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); min-width: 0; }
+.rd-aside-block + .rd-aside-block { margin-top: var(--space-4); padding-top: var(--space-6); border-top: 1px solid var(--border); }
+.rd-aside-block__header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); min-height: 32px; }
+.rd-aside-block__title { font-size: var(--text-sm); font-weight: var(--font-weight-semibold); }
+
+/* API client: one bordered box like Postman/Insomnia/Bruno. */
+.rd-pm { display: grid; grid-template-columns: minmax(0, 1fr); overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--background); font-size: var(--text-xs); }
+.rd-pm__env.ds-control { width: auto; height: 28px; gap: var(--space-1); padding: 0 var(--space-1-5) 0 var(--space-2); border-color: transparent; background: transparent; box-shadow: none; color: var(--muted-foreground); font-size: var(--text-xs); }
+.rd-pm__env.ds-control:hover, .rd-pm__env.ds-control[data-state='open'] { background: var(--accent); color: var(--foreground); }
+
+/* Request bar: method | URL | Send */
+.rd-pm__bar { display: flex; align-items: stretch; gap: var(--space-2); padding: var(--space-2); border-bottom: 1px solid var(--border); }
+.rd-pm__bar > .rd-pm__method, .rd-pm__bar > .rd-pm__url { height: 32px; }
+/* Method color comes from .ds-method--get/post/… (--_tone); gray only as a fallback. */
+.rd-pm__method {
+  display: grid;
+  place-items: center;
+  flex: none;
+  min-width: 64px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--input);
+  border-right: 0;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  background: var(--muted);
+  color: var(--_tone, var(--muted-foreground));
+  font-family: var(--font-mono);
+  font-size: var(--rd-text-xs);
+  font-weight: var(--font-weight-bold);
+}
+.rd-pm__url {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  margin-left: calc(var(--space-2) * -1);
+  padding: 0 var(--space-2-5);
+  overflow-x: auto;
+  border: 1px solid var(--input);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-family: var(--font-mono);
+  font-size: var(--rd-text-xs);
+  white-space: nowrap;
+  scrollbar-width: none;
+  outline: none;
+}
+.rd-pm__url:focus-visible { border-color: var(--ring); box-shadow: var(--ring-focus); }
+.rd-pm__url-base, .rd-pm__url-query { color: var(--muted-foreground); }
+.rd-pm__url-param { color: var(--warning); }
+.rd-pm__send { flex: none; height: 32px; }
+
+/* Tabs */
+.rd-pm__tabs { gap: 0; min-width: 0; }
+.rd-pm__tablist { display: flex; width: 100%; padding: 0 var(--space-2); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+.rd-pm__tablist .ds-tabs__trigger { flex: none; gap: var(--space-1-5); height: 34px; padding: 0 var(--space-2-5); font-size: var(--text-xs); white-space: nowrap; }
+.rd-pm__count { min-width: 16px; padding: 0 var(--space-1); border-radius: var(--radius-full); background: var(--muted); color: var(--muted-foreground); font-size: var(--rd-text-label); font-variant-numeric: tabular-nums; line-height: 16px; text-align: center; }
+.rd-pm__ok { width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--success); }
+.rd-pm__panel { outline: none; }
+.rd-pm__panel[hidden] { display: none; }
+.rd-pm__panel:focus-visible { box-shadow: inset var(--ring-focus); }
+.rd-pm__panel--pad { display: grid; gap: var(--space-2); padding: var(--space-3); }
+
+/* Key-value table */
+.rd-kv { width: 100%; border-collapse: collapse; table-layout: fixed; font-family: var(--font-mono); font-size: var(--rd-text-xs); }
+.rd-kv th { height: 28px; padding: 0 var(--space-2); border-bottom: 1px solid var(--border); color: var(--muted-foreground); font-family: var(--font-sans); font-size: var(--rd-text-label); font-weight: var(--font-weight-medium); text-align: left; }
+.rd-kv td { height: 32px; padding: 0; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.rd-kv td + td, .rd-kv th + th { border-left: 1px solid var(--border); }
+.rd-kv tr:last-child td { border-bottom: 0; }
+.rd-kv__check { width: 32px; text-align: center; }
+.rd-kv td.rd-kv__check { padding: 0; }
+.rd-kv td.rd-kv__check .ds-checkbox { margin: 0 auto; }
+.rd-kv__actions { width: 36px; text-align: center; }
+.rd-kv td.rd-kv__actions { border-left: 0 !important; }
+.rd-kv tr:not(:hover):not(:focus-within) .rd-kv__actions .ds-icon-button { opacity: 0; }
+.rd-kv__input { width: 100%; height: 31px; padding: 0 var(--space-2); border: 0; background: transparent; color: var(--foreground); font: inherit; outline: none; }
+.rd-kv__input::placeholder { color: color-mix(in oklab, var(--muted-foreground) 70%, transparent); }
+.rd-kv__input:focus-visible { background: color-mix(in oklab, var(--ring) 8%, transparent); box-shadow: inset 0 0 0 1px var(--ring); }
+.rd-kv__text { display: flex; align-items: center; gap: var(--space-1); min-width: 0; padding: 0 var(--space-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rd-kv__text--muted { color: var(--muted-foreground); }
+.rd-kv__required { color: var(--destructive); }
+.rd-kv__tag { padding: 0 var(--space-1); border-radius: var(--radius-sm); background: var(--muted); color: var(--muted-foreground); font-family: var(--font-sans); font-size: var(--rd-text-label); line-height: 16px; }
+.rd-kv__lock { display: block; width: 12px; height: 12px; margin: 0 auto; color: var(--muted-foreground); }
+.rd-kv tr.is-readonly td { background: color-mix(in oklab, var(--muted) 45%, transparent); }
+.rd-kv tr.is-disabled .rd-kv__text, .rd-kv tr.is-disabled .rd-kv__input { color: var(--muted-foreground); }
+.rd-kv--static td { height: 28px; }
+.rd-kv--static td:first-child { width: 42%; }
+
+/* Auth */
+.rd-pm__auth { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: var(--space-2) var(--space-3); }
+.rd-pm__auth-label { color: var(--muted-foreground); font-size: var(--text-xs); }
+.rd-pm__auth-type { font-weight: var(--font-weight-medium); }
+.rd-pm__auth-input { height: 30px; padding: 0 var(--space-2); border: 1px solid var(--input); border-radius: var(--radius-md); background: transparent; color: var(--foreground); font-family: var(--font-mono); font-size: var(--rd-text-xs); outline: none; }
+.rd-pm__auth-input:focus-visible { border-color: var(--ring); box-shadow: var(--ring-focus); }
+.rd-pm__hint { color: var(--muted-foreground); font-size: var(--text-xs); line-height: var(--leading-xs); }
+.rd-pm__hint code { font-family: var(--font-mono); }
+
+/* Body editor */
+.rd-pm__body-bar { display: flex; align-items: center; justify-content: space-between; height: 32px; padding: 0 var(--space-1) 0 var(--space-3); border-bottom: 1px solid var(--border); }
+.rd-pm__body-type { color: var(--muted-foreground); font-weight: var(--font-weight-medium); }
+.rd-pm__error { padding: var(--space-2) var(--space-3); border-top: 1px solid var(--border); color: var(--destructive); }
+
+/* Response pane */
+.rd-pm__response { border-top: 1px solid var(--border); background: color-mix(in oklab, var(--muted) 30%, var(--background)); }
+.rd-pm__response-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); border-bottom: 1px solid var(--border); }
+.rd-pm__tablist--flush { width: auto; border-bottom: 0; }
+.rd-pm__stats { display: flex; flex: none; align-items: center; gap: var(--space-3); padding-right: var(--space-3); color: var(--muted-foreground); font-family: var(--font-mono); font-size: var(--rd-text-label); }
+.rd-pm__status { font-weight: var(--font-weight-bold); }
+.rd-pm__status--success { color: var(--success); }
+.rd-pm__status--info { color: var(--info); }
+.rd-pm__status--warning { color: var(--warning); }
+.rd-pm__status--danger { color: var(--destructive); }
+.rd-pm__response-empty { display: flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 56px; padding: var(--space-3); color: var(--muted-foreground); font-size: var(--text-xs); }
+.rd-pm__response-empty .ds-alert { text-align: left; }
+.rd-pm__output.ds-code { border: 0; border-radius: 0; }
+/* The response gets most of the screen height (the right column only holds the client). */
+.rd-row__sticky .rd-pm__output .ds-code__pre, .rd-pm__output .ds-code__pre { max-height: max(360px, calc(100vh - 340px)); overflow: auto; }
+
+@media (max-width: 860px) {
+  .rd-operation .rd-row__sticky { max-height: none; overflow: visible; margin: 0; padding: 0; }
+}
+.rd-pm__truncated { padding: var(--space-2) var(--space-3); border-top: 1px solid var(--border); color: var(--muted-foreground); font-size: var(--text-xs); }
+.rd-pm__server-label { color: var(--muted-foreground); font-size: var(--text-xs); }
+
+/* Endpoint not mounted yet: soft skeleton under the header (content loads near the viewport). */
+.rd-operation__error.ds-alert { grid-column: 1 / -1; width: auto; margin: var(--space-10); }
+.rd-nav-error { margin: var(--space-4); }
+
+/* Language segments show text (PT / EN) instead of icons. */
+.rd-theme-row__option--text { width: auto; min-width: 26px; padding: 0 var(--space-1-5); font-size: var(--rd-text-label); font-weight: var(--font-weight-semibold); }
+
+/* Narrow content column (big examples column, small laptop): stack the steps, wrap the server rows. */
+@container rd-content (max-width: 600px) {
+  .rd-steps { grid-template-columns: minmax(0, 1fr); }
+  .rd-steps > li + li { border-top: 1px solid var(--border); border-left: 0; }
+  .rd-hero__title { font-size: var(--text-3xl); }
+}
+@container rd-content (max-width: 440px) {
+  .rd-servers__row { flex-wrap: wrap; row-gap: 0; }
+  .rd-hero__actions .rd-hero__meta { flex-basis: 100%; margin-left: 0; }
+}
+
+/* ── Sidebar filter, counts, deprecated ─────────────────────────────── */
+.rd-nav__filter { position: relative; display: flex; align-items: center; margin-bottom: var(--space-2); }
+.rd-nav__filter-icon { position: absolute; left: var(--space-2-5, 10px); width: 14px; height: 14px; color: var(--muted-foreground); pointer-events: none; }
+.rd-nav__filter-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 var(--space-8) 0 calc(var(--space-2-5, 10px) + 14px + var(--space-2));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--rd-text-ui);
+  outline: none;
+}
+.rd-nav__filter-input::placeholder { color: var(--muted-foreground); }
+.rd-nav__filter-input::-webkit-search-cancel-button { display: none; }
+.rd-nav__filter-input:focus-visible { border-color: var(--ring, var(--border)); box-shadow: var(--ring-focus); }
+.rd-nav__filter-clear {
+  position: absolute;
+  right: var(--space-1);
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+.rd-nav__filter-clear:hover { background: var(--accent); color: var(--foreground); }
+.rd-nav__filter-clear:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+.rd-nav__filter-clear svg { width: 14px; height: 14px; }
+.rd-nav__filter + .rd-nav__section { margin-top: var(--space-4); }
+.rd-nav__empty { padding: var(--space-3) var(--space-2); color: var(--muted-foreground); font-size: var(--rd-text-ui); }
+/* Endpoints in a closed group. */
+.rd-nav__count { flex: none; min-width: 20px; padding: 0 var(--space-1-5); border-radius: var(--radius-full); background: var(--muted); color: var(--muted-foreground); font-size: var(--text-xs); font-weight: var(--font-weight-medium); line-height: 18px; text-align: center; }
+.rd-nav a.is-deprecated .rd-nav__label { text-decoration: line-through; text-decoration-color: color-mix(in oklab, currentColor 60%, transparent); }
+.rd-nav a.is-deprecated:not([aria-current]) { opacity: 0.7; }
+
+/* ── Previous / Next ───────────────────────────────────────────────── */
+.rd-pager { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-8); }
+.rd-pager__link {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--foreground);
+  text-decoration: none;
+  transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
+}
+.rd-pager__link:hover { border-color: color-mix(in oklab, var(--foreground) 25%, transparent); background: var(--accent); }
+.rd-pager__link:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+.rd-pager__link--next { grid-column: 2; text-align: right; }
+.rd-pager__direction { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--muted-foreground); font-size: var(--text-xs); }
+.rd-pager__link--next .rd-pager__direction { justify-content: flex-end; }
+.rd-pager__direction svg { width: 14px; height: 14px; }
+.rd-pager__title { display: flex; align-items: center; gap: var(--space-2); min-width: 0; overflow: hidden; font-size: var(--text-sm); font-weight: var(--font-weight-medium); text-overflow: ellipsis; white-space: nowrap; }
+.rd-pager__link--next .rd-pager__title { justify-content: flex-end; }
+.rd-pager__title .ds-method { flex: none; font-size: var(--rd-text-label); }
+@container rd-content (max-width: 440px) {
+  .rd-pager { grid-template-columns: minmax(0, 1fr); }
+  .rd-pager__link--next { grid-column: 1; }
+}
+
+/* ── Path parameter tooltip ────────────────────────────────────────── */
+.rd-param-hint { display: grid; gap: 2px; max-width: 260px; }
+.rd-param-hint code { font-weight: var(--font-weight-semibold); }
+.rd-param-hint__text { opacity: 0.8; }
+
+/* ── API client: tools in the title row, CORS help ─────────────────── */
+.rd-aside-block__tools { display: flex; align-items: center; gap: var(--space-1); margin-left: auto; }
+.rd-aside-block__tools + .rd-pm__server-label, .rd-aside-block__tools + .rd-pm__env { margin-left: var(--space-1); }
+.rd-pm__cors { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
+
+/* ── One column: the client opens in a bottom sheet ────────────────── */
+.rd-try { justify-self: start; }
+.rd-try-sheet { padding: 0; }
+.rd-try-sheet .ds-sheet__header { padding: var(--space-5) var(--space-12) var(--space-3) var(--space-5); }
+.rd-try-sheet__body { flex: 1; min-height: 0; overflow-y: auto; padding: 0 var(--space-4) var(--space-6); }
+.rd-try-sheet .rd-pm__output .ds-code__pre { max-height: 50dvh; }
+/* The sheet title already names the endpoint: the client's own "Try it" heading stays for screen readers only. */
+.rd-try-sheet .rd-aside-block__title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Group of the endpoint (one endpoint per page), above its title. */
+/* Sits right above the title (the column gap between blocks is --space-8). */
+.rd-operation__group { margin-bottom: calc(var(--space-1-5) - var(--space-8)); color: var(--muted-foreground); font-size: var(--text-sm); font-weight: var(--font-weight-medium); }
+.rd-operation .ds-endpoint__title { font-size: var(--text-2xl); }
+
+/* ── OpenAPI coverage: badges, security, callbacks ─────────────────── */
+.rd-badge { margin-left: var(--space-2); vertical-align: middle; }
+.rd-nav__badge { flex: none; padding: 0 var(--space-1-5); border-radius: var(--radius-full); background: color-mix(in oklab, var(--info) 14%, transparent); color: var(--info); font-size: var(--rd-text-label); font-weight: var(--font-weight-medium); line-height: 18px; }
+.rd-operation__meta { color: var(--muted-foreground); font-size: var(--text-sm); }
+.rd-operation__meta span { color: var(--foreground); font-weight: var(--font-weight-medium); }
+.rd-block__hint { color: var(--muted-foreground); font-size: var(--text-sm); }
+.rd-block__hint code { font-family: var(--font-mono); font-size: 0.9em; }
+.rd-block__select { max-width: 60%; font-family: var(--font-mono); font-weight: var(--font-weight-regular); }
+.rd-security { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.rd-security li { display: flex; flex-wrap: wrap; gap: var(--space-3); padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.rd-security__scheme { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); font-size: var(--text-sm); }
+.rd-security__scheme code { padding: 0 var(--space-1); border-radius: var(--radius-sm); background: var(--muted); font-family: var(--font-mono); font-size: var(--rd-text-xs); }
+.rd-security__text { flex-basis: 100%; color: var(--muted-foreground); }
+.rd-callback { display: grid; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.rd-callback + .rd-callback { margin-top: var(--space-3); }
+.rd-callback__title { display: flex; align-items: center; gap: var(--space-2); }
+.rd-callback__text { color: var(--muted-foreground); font-size: var(--text-sm); }
+.rd-callback .rd-block { gap: var(--space-2); }
+
+/* ── API client: server variables, auth schemes, body types, responses ── */
+.rd-pm__vars { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.rd-pm__var { display: flex; flex: 1 1 100%; align-items: center; gap: var(--space-2); min-width: 0; }
+.rd-pm__var-name { flex: none; color: var(--muted-foreground); font-family: var(--font-mono); font-size: var(--rd-text-xs); }
+.rd-pm__var-select { flex: 1; min-width: 0; font-family: var(--font-mono); }
+.rd-pm__auth-panel { display: grid; gap: var(--space-4); }
+.rd-pm__auth-scheme { display: grid; gap: var(--space-2); min-width: 0; margin: 0; padding: 0; border: 0; }
+.rd-pm__auth-scheme + .rd-pm__auth-scheme { padding-top: var(--space-4); border-top: 1px solid var(--border); }
+.rd-pm__auth-scheme legend { margin-bottom: var(--space-1); padding: 0; }
+.rd-pm__auth-select { min-width: 0; }
+.rd-pm__oauth { display: grid; gap: var(--space-2); }
+.rd-pm__oauth-flows { display: grid; gap: var(--space-1); margin: 0; font-size: var(--rd-text-xs); }
+.rd-pm__oauth-flows div { display: grid; gap: 2px; }
+.rd-pm__oauth-flows dt { color: var(--muted-foreground); }
+.rd-pm__oauth-flows dd { display: grid; gap: 2px; margin: 0; }
+.rd-pm__oauth-flows code, .rd-pm__hint code + code { font-family: var(--font-mono); overflow-wrap: anywhere; }
+.rd-pm__hint code + code { margin-left: var(--space-1); }
+.rd-pm__body-tools { display: flex; align-items: center; gap: var(--space-1); min-width: 0; }
+/* Ghost select, like the code-sample language picker: reads as the bar's label, not a form field. */
+.rd-pm__body-select.ds-control {
+  width: auto;
+  max-width: 220px;
+  height: 26px;
+  gap: var(--space-1);
+  padding: 0 var(--space-1-5) 0 var(--space-2);
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+}
+.rd-pm__body-bar > .rd-pm__body-select.ds-control { margin-left: calc(-1 * var(--space-2)); }
+.rd-pm__body-select.ds-control:hover,
+.rd-pm__body-select.ds-control[data-state='open'] { background: var(--accent); color: var(--foreground); }
+.rd-pm__body-select.ds-control:focus-visible { border-color: transparent; box-shadow: var(--ring-focus); }
+.rd-pm__body-select .ds-select-trigger__icon { width: 14px; height: 14px; }
+.rd-pm__textarea {
+  display: block;
+  width: 100%;
+  min-height: 160px;
+  padding: var(--space-3);
+  border: 0;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  font-family: var(--font-mono);
+  font-size: var(--rd-text-xs);
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+}
+.rd-pm__textarea:focus-visible { box-shadow: inset 0 0 0 1px var(--ring); }
+.rd-kv__key { display: flex; align-items: center; min-width: 0; }
+.rd-kv__key .rd-kv__input { flex: 1; min-width: 0; }
+.rd-kv__as-file { display: grid; flex: none; place-items: center; width: 24px; height: 24px; margin-right: var(--space-1); padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted-foreground); cursor: pointer; }
+.rd-kv__as-file svg { width: 13px; height: 13px; }
+.rd-kv__as-file:hover { background: var(--accent); color: var(--foreground); }
+.rd-kv__as-file:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+.rd-kv__as-file[aria-pressed='true'] { background: var(--accent); color: var(--foreground); }
+.rd-kv tr:not(:hover):not(:focus-within) .rd-kv__as-file[aria-pressed='false'] { opacity: 0; }
+.rd-pm__body-menu .ds-menu__label { padding-bottom: var(--space-1); color: var(--muted-foreground); font-size: var(--text-xs); }
+.rd-pm__binary { display: grid; gap: var(--space-2); padding: var(--space-3); }
+.rd-pm__graphql { display: grid; }
+.rd-pm__body-label { padding: var(--space-1-5) var(--space-3); border-bottom: 1px solid var(--border); color: var(--muted-foreground); font-size: var(--rd-text-label); font-weight: var(--font-weight-medium); }
+.rd-pm__graphql .rd-pm__textarea + .rd-pm__body-label { border-top: 1px solid var(--border); }
+.rd-pm__editor--small { min-height: 96px; }
+.rd-kv__file { width: 100%; min-width: 0; font-family: var(--font-sans); font-size: var(--rd-text-xs); color: var(--muted-foreground); }
+.rd-kv__file::file-selector-button { margin-right: var(--space-2); padding: 2px var(--space-2); border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--background); color: var(--foreground); font: inherit; cursor: pointer; }
+.rd-pm__image { display: grid; place-items: center; padding: var(--space-4); background: repeating-conic-gradient(var(--muted) 0 25%, transparent 0 50%) 0 0 / 16px 16px; }
+.rd-pm__image img { max-width: 100%; max-height: 320px; height: auto; }
+.rd-pm__download { color: var(--foreground); font-weight: var(--font-weight-medium); text-decoration: underline; text-underline-offset: 3px; }

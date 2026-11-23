@@ -1,0 +1,63 @@
+/* Option cards (OptionCards.tsx): a radio group drawn as cards, used in the first-run setup and
+   the new project dialog. The tint matches the sign-in screens' lavender. */
+.admin-options-field { --_tint: 280; display: grid; gap: var(--space-2); }
+
+.admin-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+@media (max-width: 480px) { .admin-options { grid-template-columns: minmax(0, 1fr); } }
+.admin-option {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3-5, 14px) var(--space-4);
+  border: 1px solid light-dark(var(--neutral-200), oklch(1 0 0 / 0.1));
+  border-radius: 14px;
+  background: var(--card);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
+}
+.admin-option:hover { border-color: light-dark(var(--neutral-300), oklch(1 0 0 / 0.2)); }
+.admin-option:focus-visible { outline: none; box-shadow: 0 0 0 4px oklch(0.6 0.15 var(--_tint) / 0.2); }
+.admin-option[data-state='checked'] {
+  border-color: light-dark(oklch(0.6 0.15 var(--_tint)), oklch(0.7 0.12 var(--_tint)));
+  background: light-dark(oklch(0.98 0.012 var(--_tint)), oklch(0.6 0.15 var(--_tint) / 0.08));
+  box-shadow: 0 0 0 1px light-dark(oklch(0.6 0.15 var(--_tint)), oklch(0.7 0.12 var(--_tint)));
+}
+.admin-option__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: light-dark(var(--neutral-100), oklch(1 0 0 / 0.06));
+  color: var(--muted-foreground);
+}
+.admin-option__icon svg { width: 18px; height: 18px; }
+.admin-option[data-state='checked'] .admin-option__icon {
+  background: light-dark(oklch(0.93 0.04 var(--_tint)), oklch(0.6 0.15 var(--_tint) / 0.2));
+  color: light-dark(oklch(0.45 0.2 var(--_tint)), oklch(0.85 0.08 var(--_tint)));
+}
+.admin-option__text { display: grid; flex: 1; min-width: 0; gap: 2px; padding-right: var(--space-5); }
+.admin-option__label { font-size: var(--text-sm); font-weight: var(--font-weight-medium); line-height: 1.35; }
+.admin-option__description { color: var(--muted-foreground); font-size: var(--text-xs); line-height: 1.45; }
+.admin-option__check {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  background: light-dark(oklch(0.5 0.2 var(--_tint)), oklch(0.7 0.12 var(--_tint)));
+  color: white;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-standard);
+}
+.admin-option__check svg { width: 12px; height: 12px; stroke-width: 3; }
+.admin-option[data-state='checked'] .admin-option__check { opacity: 1; transform: none; }

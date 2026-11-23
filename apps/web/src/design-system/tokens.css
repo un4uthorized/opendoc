@@ -1,0 +1,221 @@
+/*
+ * OpenDoc design tokens — shadcn/ui-style.
+ *
+ * Two layers:
+ * 1. Primitives: raw OKLCH scales (50–950). Never use them directly in components.
+ * 2. Semantic tokens in background/foreground pairs (--primary + --primary-foreground…),
+ *    the same convention as shadcn/ui, so its components port over easily.
+ *    Each one resolves per theme through light-dark(), driven by color-scheme.
+ *
+ * Theme: follows the system by default; <html data-theme="light|dark"> forces one.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* ── Primitives: neutral (pure gray) ─────────────────────────────── */
+  --neutral-0: oklch(1 0 0);
+  --neutral-50: oklch(0.985 0 0);
+  --neutral-100: oklch(0.97 0 0);
+  --neutral-200: oklch(0.922 0 0);
+  --neutral-300: oklch(0.87 0 0);
+  --neutral-400: oklch(0.708 0 0);
+  --neutral-500: oklch(0.556 0 0);
+  --neutral-600: oklch(0.439 0 0);
+  --neutral-700: oklch(0.371 0 0);
+  --neutral-800: oklch(0.269 0 0);
+  --neutral-900: oklch(0.205 0 0);
+  --neutral-950: oklch(0.145 0 0);
+
+  /* ── Primitives: status hues ─────────────────────────────────────── */
+  --red-50: oklch(0.971 0.013 17);
+  --red-100: oklch(0.936 0.032 17);
+  --red-200: oklch(0.885 0.062 18);
+  --red-300: oklch(0.808 0.114 19);
+  --red-400: oklch(0.704 0.191 22);
+  --red-500: oklch(0.637 0.237 25);
+  --red-600: oklch(0.577 0.245 27);
+  --red-700: oklch(0.505 0.213 27);
+  --red-800: oklch(0.444 0.177 26);
+  --red-900: oklch(0.396 0.141 25);
+  --red-950: oklch(0.258 0.092 26);
+
+  --green-50: oklch(0.982 0.018 155);
+  --green-100: oklch(0.962 0.044 156);
+  --green-200: oklch(0.925 0.084 155);
+  --green-300: oklch(0.871 0.15 154);
+  --green-400: oklch(0.792 0.209 151);
+  --green-500: oklch(0.723 0.219 149);
+  --green-600: oklch(0.627 0.194 149);
+  --green-700: oklch(0.527 0.154 150);
+  --green-800: oklch(0.448 0.119 151);
+  --green-900: oklch(0.393 0.095 152);
+  --green-950: oklch(0.266 0.065 152);
+
+  --amber-50: oklch(0.987 0.022 95);
+  --amber-100: oklch(0.962 0.059 95);
+  --amber-200: oklch(0.924 0.12 95);
+  --amber-300: oklch(0.879 0.169 91);
+  --amber-400: oklch(0.828 0.189 84);
+  --amber-500: oklch(0.769 0.188 70);
+  --amber-600: oklch(0.666 0.179 58);
+  --amber-700: oklch(0.555 0.163 49);
+  --amber-800: oklch(0.473 0.137 46);
+  --amber-900: oklch(0.414 0.112 46);
+  --amber-950: oklch(0.279 0.077 46);
+
+  --blue-50: oklch(0.97 0.014 255);
+  --blue-100: oklch(0.932 0.032 256);
+  --blue-200: oklch(0.882 0.059 254);
+  --blue-300: oklch(0.809 0.105 252);
+  --blue-400: oklch(0.707 0.165 255);
+  --blue-500: oklch(0.623 0.214 259);
+  --blue-600: oklch(0.546 0.245 263);
+  --blue-700: oklch(0.488 0.243 264);
+  --blue-800: oklch(0.424 0.199 266);
+  --blue-900: oklch(0.379 0.146 266);
+  --blue-950: oklch(0.282 0.091 268);
+
+  /* ── Semantic colors ─────────────────────────────────────────────── */
+  --background: light-dark(var(--neutral-0), var(--neutral-950));
+  --foreground: light-dark(var(--neutral-950), var(--neutral-50));
+  --card: light-dark(var(--neutral-0), var(--neutral-900));
+  --card-foreground: var(--foreground);
+  --popover: light-dark(var(--neutral-0), var(--neutral-900));
+  --popover-foreground: var(--foreground);
+
+  --primary: light-dark(var(--neutral-900), var(--neutral-200));
+  --primary-foreground: light-dark(var(--neutral-50), var(--neutral-900));
+  --secondary: light-dark(var(--neutral-100), var(--neutral-800));
+  --secondary-foreground: light-dark(var(--neutral-900), var(--neutral-50));
+  --muted: light-dark(var(--neutral-100), var(--neutral-800));
+  --muted-foreground: light-dark(var(--neutral-500), var(--neutral-400));
+  --accent: light-dark(var(--neutral-100), var(--neutral-800));
+  --accent-foreground: light-dark(var(--neutral-900), var(--neutral-50));
+
+  --destructive: light-dark(var(--red-600), var(--red-400));
+  --destructive-solid: light-dark(var(--red-600), oklch(0.577 0.245 27 / 0.6));
+
+  --border: light-dark(var(--neutral-200), oklch(1 0 0 / 0.1));
+  --input: light-dark(var(--neutral-200), oklch(1 0 0 / 0.15));
+  --ring: light-dark(var(--neutral-400), var(--neutral-500));
+
+  /* Sidebar surface (a step off the background, like shadcn's sidebar tokens). */
+  --sidebar: light-dark(var(--neutral-50), var(--neutral-900));
+  --sidebar-foreground: var(--foreground);
+  --sidebar-accent: light-dark(var(--neutral-200), var(--neutral-800));
+  --sidebar-border: light-dark(var(--neutral-200), oklch(1 0 0 / 0.08));
+
+  /* Status (extension; shadcn ships only destructive). Text-safe on --background. */
+  --success: light-dark(var(--green-700), var(--green-400));
+  --warning: light-dark(var(--amber-700), var(--amber-400));
+  --info: light-dark(var(--blue-600), var(--blue-400));
+
+  /* ── Typography ──────────────────────────────────────────────────── */
+  --font-sans: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+
+  --leading-none: 1;
+  --leading-xs: 1rem;
+  --leading-sm: 1.25rem;
+  --leading-md: 1.5rem;
+  --leading-relaxed: 1.75rem;
+  --leading-xl: 1.75rem;
+  --leading-2xl: 2rem;
+  --leading-3xl: 2.25rem;
+  --leading-4xl: 2.5rem;
+  --leading-5xl: 1.1;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.05em;
+
+  /* ── Icons (lucide, 24px grid, stroke 2) ─────────────────────────── */
+  --icon-xs: 12px;
+  --icon-sm: 14px;
+  --icon-md: 16px;
+  --icon-lg: 20px;
+  --icon-xl: 24px;
+  --icon-stroke: 2;
+
+  /* ── Spacing (4px grid) ──────────────────────────────────────────── */
+  --space-0: 0;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ── Radius: one knob, everything derives from it ────────────────── */
+  --radius: 0.625rem;
+  --radius-xs: calc(var(--radius) - 6px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-full: 9999px;
+
+  /* ── Elevation ───────────────────────────────────────────────────── */
+  --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px oklch(0 0 0 / 0.1), 0 2px 4px -2px oklch(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px oklch(0 0 0 / 0.1), 0 4px 6px -4px oklch(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px oklch(0 0 0 / 0.1), 0 8px 10px -6px oklch(0 0 0 / 0.1);
+  /* shadcn focus: border turns --ring plus a 3px ring at 50%. */
+  --ring-focus: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+  --ring-invalid: 0 0 0 3px color-mix(in oklch, var(--destructive) 20%, transparent);
+
+  /* ── Controls ────────────────────────────────────────────────────── */
+  --control-sm: 32px;
+  --control-md: 36px;
+  --control-lg: 40px;
+
+  /* ── Motion ──────────────────────────────────────────────────────── */
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* ── Layers ──────────────────────────────────────────────────────── */
+  /* Menus, selects and popovers sit above modals: they can be opened from inside a Dialog or Sheet. */
+  --z-sticky: 1100;
+  --z-overlay: 1200;
+  --z-modal: 1300;
+  --z-dropdown: 1350;
+  --z-toast: 1400;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}

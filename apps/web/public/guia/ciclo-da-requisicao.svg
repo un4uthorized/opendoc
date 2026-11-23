@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fafafa"/>
+      <stop offset="1" stop-color="#f1f1f3"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 10 5 0 10z" fill="#71717a"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#18181b" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="560" fill="url(#bg)"/>
+  <text x="60" y="78" font-size="30" font-weight="600" fill="#18181b">Ciclo de uma requisição</text>
+  <text x="60" y="112" font-size="18" fill="#71717a">Do seu código até o JSON de volta, em uma ida e volta HTTP.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="60" y="190" width="300" height="200" rx="16" fill="#fff" stroke="#e4e4e7"/>
+    <rect x="840" y="190" width="300" height="200" rx="16" fill="#fff" stroke="#e4e4e7"/>
+  </g>
+  <text x="90" y="236" font-size="15" fill="#71717a">CLIENTE</text>
+  <text x="90" y="272" font-size="24" font-weight="600" fill="#18181b">Seu app</text>
+  <text x="90" y="306" font-size="16" fill="#52525b">navegador, servidor</text>
+  <text x="90" y="330" font-size="16" fill="#52525b">ou terminal</text>
+
+  <text x="870" y="236" font-size="15" fill="#71717a">API</text>
+  <text x="870" y="272" font-size="24" font-weight="600" fill="#18181b">JSONPlaceholder</text>
+  <text x="870" y="306" font-size="16" fill="#52525b">responde com dados</text>
+  <text x="870" y="330" font-size="16" fill="#52525b">falsos, em JSON</text>
+
+  <line x1="380" y1="250" x2="820" y2="250" stroke="#71717a" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="490" y="226" width="220" height="40" rx="20" fill="#ecfdf5" stroke="#a7f3d0"/>
+  <text x="600" y="252" font-size="16" font-weight="600" fill="#047857" text-anchor="middle" font-family="ui-monospace, Menlo, monospace">GET /posts/1</text>
+
+  <line x1="820" y1="340" x2="380" y2="340" stroke="#71717a" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="490" y="316" width="220" height="40" rx="20" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="600" y="342" font-size="16" font-weight="600" fill="#1d4ed8" text-anchor="middle" font-family="ui-monospace, Menlo, monospace">200 OK · JSON</text>
+
+  <g filter="url(#shadow)">
+    <rect x="360" y="420" width="480" height="96" rx="12" fill="#18181b"/>
+  </g>
+  <text x="384" y="452" font-size="15" fill="#a1a1aa" font-family="ui-monospace, Menlo, monospace">{ "id": 1, "userId": 1,</text>
+  <text x="402" y="476" font-size="15" fill="#e4e4e7" font-family="ui-monospace, Menlo, monospace">"title": "sunt aut facere...",</text>
+  <text x="402" y="500" font-size="15" fill="#a1a1aa" font-family="ui-monospace, Menlo, monospace">"body": "quia et suscipit..." }</text>
+</svg>

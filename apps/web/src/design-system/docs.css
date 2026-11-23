@@ -1,0 +1,487 @@
+/* API documentation components. */
+
+:root {
+  /* Syntax colors: every token passes 4.5:1 on --code-bg in both themes. */
+  --code-bg: light-dark(var(--neutral-50), var(--neutral-900));
+  --code-header: light-dark(var(--neutral-100), oklch(0.235 0 0));
+  --code-fg: light-dark(var(--neutral-800), var(--neutral-200));
+  --code-comment: light-dark(oklch(0.52 0.01 260), oklch(0.65 0.01 260));
+  --code-keyword: light-dark(oklch(0.48 0.2 300), oklch(0.78 0.13 300));
+  --code-string: light-dark(oklch(0.48 0.13 150), oklch(0.8 0.14 150));
+  --code-number: light-dark(oklch(0.5 0.15 50), oklch(0.8 0.13 60));
+  --code-attr: light-dark(oklch(0.47 0.15 250), oklch(0.78 0.11 245));
+  --code-title: light-dark(oklch(0.46 0.15 270), oklch(0.8 0.1 270));
+  --code-line-highlight: light-dark(oklch(0.5 0.15 250 / 0.08), oklch(0.75 0.11 245 / 0.1));
+}
+
+/* ── CodeBlock ─────────────────────────────────────────────────────── */
+.ds-code {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--code-bg);
+  color: var(--code-fg);
+}
+.ds-code__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: 0 var(--space-2) 0 var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: var(--code-header);
+}
+.ds-code__title { overflow: hidden; color: var(--muted-foreground); font-family: var(--font-mono); font-size: var(--text-xs); text-overflow: ellipsis; white-space: nowrap; }
+.ds-code__actions { display: flex; align-items: center; gap: var(--space-1); }
+.ds-code__floating { position: absolute; top: var(--space-2); right: var(--space-2); z-index: 1; }
+.ds-code__pre {
+  margin: 0;
+  padding: var(--space-4) 0;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  tab-size: 2;
+  outline: none;
+}
+.ds-code__pre:focus-visible { box-shadow: inset var(--ring-focus); }
+.ds-code--bare .ds-code__pre { padding-right: var(--space-12); }
+.ds-code__code { display: block; min-width: max-content; }
+.ds-code-tabs .ds-code__code { padding: 0 var(--space-4); }
+.ds-code__line { display: block; padding: 0 var(--space-4); }
+.ds-code__line.is-highlighted { background: var(--code-line-highlight); box-shadow: inset 2px 0 0 var(--code-attr); }
+.has-line-numbers .ds-code__line { padding-left: var(--space-2); }
+.ds-code__number { display: inline-block; width: 2.5em; margin-right: var(--space-3); color: var(--code-comment); text-align: right; user-select: none; }
+.ds-copy-button.is-copied { color: var(--success); }
+.ds-code-tabs .ds-code__header { padding-left: var(--space-2); }
+/* Ghost trigger: reads as part of the header, not as a form field. */
+.ds-code-tabs__select.ds-control {
+  width: auto;
+  height: 28px;
+  gap: var(--space-1);
+  padding: 0 var(--space-1-5) 0 var(--space-2);
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+}
+.ds-code-tabs__select.ds-control:hover,
+.ds-code-tabs__select.ds-control[data-state='open'] { background: var(--accent); color: var(--foreground); }
+.ds-code-tabs__select.ds-control:focus-visible { border-color: transparent; box-shadow: var(--ring-focus); }
+.ds-code-tabs__select .ds-select-trigger__icon { width: 14px; height: 14px; }
+
+.hljs-comment, .hljs-quote { color: var(--code-comment); font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-built_in, .hljs-literal, .hljs-type { color: var(--code-keyword); }
+.hljs-string, .hljs-regexp, .hljs-addition, .hljs-template-string { color: var(--code-string); }
+.hljs-number, .hljs-symbol, .hljs-bullet { color: var(--code-number); }
+.hljs-attr, .hljs-attribute, .hljs-variable, .hljs-template-variable, .hljs-property, .hljs-params { color: var(--code-attr); }
+.hljs-title, .hljs-title.function_, .hljs-section, .hljs-name, .hljs-meta { color: var(--code-title); }
+.hljs-deletion { color: var(--destructive); }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: var(--font-weight-semibold); }
+
+/* ── Method & endpoint ─────────────────────────────────────────────── */
+/* Standalone method label (tables, lists): tinted text, no fill. */
+.ds-method {
+  --_tone: var(--muted-foreground);
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  color: var(--_tone);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+}
+.ds-method--get { --_tone: var(--info); }
+.ds-method--post { --_tone: var(--success); }
+.ds-method--put, .ds-method--patch { --_tone: var(--warning); }
+/* Light: one step darker than --destructive so DELETE keeps 4.5:1 on hover/selected rows too. */
+.ds-method--delete { --_tone: light-dark(var(--red-700), var(--destructive)); }
+
+/* Base URL and {params} are muted (they read like placeholders); the path itself is foreground. */
+.ds-endpoint-path { overflow-wrap: anywhere; color: var(--foreground); font-family: var(--font-mono); font-size: var(--text-sm); line-height: var(--leading-sm); }
+.ds-endpoint-path__base, .ds-endpoint-path__param { color: var(--muted-foreground); }
+
+.ds-endpoint { display: grid; gap: var(--space-2); }
+.ds-endpoint__heading { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+.ds-endpoint__title { margin: 0; font-size: var(--text-xl); font-weight: var(--font-weight-semibold); letter-spacing: var(--tracking-tight); line-height: 1.3; }
+.ds-endpoint__description { max-width: 70ch; color: var(--muted-foreground); font-size: var(--text-sm); line-height: var(--leading-sm); }
+.ds-endpoint__description + .ds-endpoint__bar,
+.ds-endpoint__heading + .ds-endpoint__bar { margin-top: var(--space-2); }
+
+/* shadcn-style input group: bordered like a field, method as a left addon. */
+.ds-endpoint__bar {
+  display: flex;
+  align-items: stretch;
+  min-height: var(--control-lg);
+  overflow: hidden;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-md);
+  background: light-dark(var(--background), color-mix(in oklch, var(--input) 30%, transparent));
+  box-shadow: var(--shadow-xs);
+}
+.ds-endpoint__method {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 72px;
+  padding: 0 var(--space-3);
+  border-right: 1px solid var(--input);
+  background: var(--muted);
+}
+.ds-endpoint__bar .ds-endpoint-path { display: flex; flex: 1; flex-wrap: wrap; align-items: center; min-width: 0; padding: var(--space-2) var(--space-3); }
+.ds-endpoint__actions { display: flex; flex: none; align-items: center; gap: var(--space-1); padding-right: var(--space-1); }
+.ds-endpoint.is-deprecated .ds-endpoint-path { color: var(--muted-foreground); text-decoration: line-through; text-decoration-color: color-mix(in oklch, var(--muted-foreground) 60%, transparent); }
+@media (max-width: 639px) {
+  .ds-endpoint__method { min-width: 60px; padding: 0 var(--space-2); }
+  .ds-endpoint-path__base { display: none; }
+}
+
+/* ── Schema viewer ─────────────────────────────────────────────────── */
+.ds-schema { font-size: var(--text-sm); }
+/* "Expand all / Collapse all": a quiet text button on the right, above the fields. */
+.ds-schema__expand-all {
+  display: block;
+  margin: 0 0 0 auto;
+  padding: var(--space-1) 0;
+  border: 0;
+  background: none;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+.ds-schema__expand-all:hover { color: var(--foreground); text-decoration: underline; text-underline-offset: 3px; }
+.ds-schema__expand-all:focus-visible { outline: none; border-radius: var(--radius-sm); box-shadow: var(--ring-focus); }
+.ds-schema__root { padding: var(--space-3) 0; color: var(--muted-foreground); }
+.ds-schema__list { margin: 0; padding: 0; list-style: none; }
+/* Doubled class beats the base reset ul[role='list'] { padding: 0 }. */
+.ds-schema__list.ds-schema__list--nested { margin: var(--space-2) 0 0 var(--space-1-5); padding-left: var(--space-5); border-left: 1px solid var(--border); }
+.ds-schema__property { display: grid; gap: var(--space-1-5); padding: var(--space-3) 0; border-top: 1px solid var(--border); }
+.ds-schema__list > .ds-schema__property:first-child { border-top: 0; }
+.ds-schema__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1-5) var(--space-2); }
+.ds-schema__name { font-family: var(--font-mono); font-size: 13px; font-weight: var(--font-weight-semibold); }
+.ds-schema__type { color: var(--muted-foreground); font-family: var(--font-mono); font-size: var(--text-xs); }
+.ds-schema__required { color: var(--destructive); font-size: var(--text-xs); font-weight: var(--font-weight-medium); }
+.ds-schema__optional { color: var(--muted-foreground); font-size: var(--text-xs); }
+.ds-schema__flag { padding: 0 var(--space-1-5); border-radius: var(--radius-sm); background: var(--muted); color: var(--muted-foreground); font-size: 11px; }
+.ds-schema__flag--warning { background: color-mix(in oklch, var(--warning) 14%, transparent); color: var(--warning); }
+.ds-schema__description { max-width: 70ch; color: var(--muted-foreground); line-height: var(--leading-sm); }
+.ds-schema__facts { display: grid; gap: var(--space-1); margin: 0; font-size: var(--text-xs); }
+.ds-schema__facts > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1-5); }
+.ds-schema__facts dt { color: var(--muted-foreground); }
+.ds-schema__facts dd { display: flex; flex-wrap: wrap; gap: var(--space-1); margin: 0; }
+.ds-schema__facts code { padding: 0 var(--space-1); border-radius: var(--radius-xs); background: var(--muted); font-size: 11px; }
+.ds-schema__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  justify-self: start;
+  height: 26px;
+  padding: 0 var(--space-2) 0 var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  outline: none;
+}
+.ds-schema__toggle:hover { background: var(--accent); color: var(--foreground); }
+.ds-schema__toggle:focus-visible { box-shadow: var(--ring-focus); }
+.ds-schema__chevron { width: 14px; height: 14px; transition: transform var(--duration-fast) var(--ease-standard); }
+.ds-schema__toggle[aria-expanded='true'] .ds-schema__chevron { transform: rotate(90deg); }
+
+/* ── Responses ─────────────────────────────────────────────────────── */
+.ds-responses { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); min-width: 0; }
+.ds-responses__header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.ds-responses__title { font-size: var(--text-sm); font-weight: var(--font-weight-semibold); }
+.ds-responses__select { width: auto; min-width: 200px; }
+/* Radix wraps the option content in its own span (also mirrored into the trigger). */
+.ds-responses__select > span:first-child,
+.ds-responses__option > span:not(.ds-select-item__indicator) { display: flex; align-items: center; gap: var(--space-2); }
+.ds-responses__code { font-family: var(--font-mono); font-size: var(--text-xs); font-weight: var(--font-weight-medium); }
+.ds-responses__status { color: var(--muted-foreground); }
+.ds-responses__dot { flex: none; width: 8px; height: 8px; border-radius: var(--radius-full); }
+.ds-responses__dot--success { background: var(--success); }
+.ds-responses__dot--info { background: var(--info); }
+.ds-responses__dot--warning { background: var(--warning); }
+.ds-responses__dot--danger { background: var(--destructive); }
+.ds-responses__panel { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+.ds-responses__description { color: var(--muted-foreground); font-size: var(--text-sm); }
+.ds-responses__views { gap: var(--space-3); }
+.ds-responses__empty { padding: var(--space-4); border: 1px dashed var(--border); border-radius: var(--radius-lg); color: var(--muted-foreground); font-size: var(--text-sm); text-align: center; }
+
+/* ── Table of contents & heading anchors ───────────────────────────── */
+.ds-toc { display: grid; gap: var(--space-2); font-size: var(--text-sm); }
+.ds-toc__title { font-weight: var(--font-weight-medium); }
+.ds-toc__list { display: grid; gap: 2px; margin: 0; padding: 0; border-left: 1px solid var(--border); list-style: none; }
+.ds-toc__item a {
+  display: block;
+  margin-left: -1px;
+  padding: var(--space-1) var(--space-3);
+  border-left: 2px solid transparent;
+  color: var(--muted-foreground);
+  line-height: var(--leading-sm);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+}
+.ds-toc__item--nested a { padding-left: var(--space-6); }
+.ds-toc__item a:hover { color: var(--foreground); }
+.ds-toc__item a[aria-current] { border-left-color: var(--foreground); color: var(--foreground); font-weight: var(--font-weight-medium); }
+.ds-toc__item a:focus-visible { border-radius: var(--radius-sm); outline: none; box-shadow: var(--ring-focus); }
+
+.ds-heading-anchor { position: relative; scroll-margin-top: 88px; }
+.ds-heading-anchor__link {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--muted-foreground);
+  vertical-align: middle;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.ds-heading-anchor__link svg { width: 16px; height: 16px; }
+.ds-heading-anchor:hover .ds-heading-anchor__link,
+.ds-heading-anchor__link:focus-visible { opacity: 1; }
+.ds-heading-anchor__link:hover { background: var(--accent); color: var(--foreground); }
+.ds-heading-anchor__link:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+@media (hover: none) { .ds-heading-anchor__link { opacity: 1; } }
+
+/* ── Prose (rendered Markdown) ─────────────────────────────────────── */
+.ds-prose { max-width: 72ch; color: var(--foreground); font-size: var(--text-md); line-height: var(--leading-relaxed); }
+.ds-prose > * + * { margin-top: 1.1em; }
+.ds-prose h1 { font-size: var(--text-4xl); font-weight: var(--font-weight-bold); letter-spacing: var(--tracking-tight); line-height: 1.15; }
+.ds-prose h2 { margin-top: 2.2em; padding-bottom: var(--space-2); border-bottom: 1px solid var(--border); font-size: var(--text-2xl); font-weight: var(--font-weight-semibold); letter-spacing: var(--tracking-tight); line-height: 1.25; scroll-margin-top: 88px; }
+.ds-prose h3 { margin-top: 1.8em; font-size: var(--text-xl); font-weight: var(--font-weight-semibold); letter-spacing: var(--tracking-tight); line-height: 1.3; scroll-margin-top: 88px; }
+.ds-prose h2 + *, .ds-prose h3 + * { margin-top: 0.75em; }
+.ds-prose p, .ds-prose li { text-wrap: pretty; }
+.ds-prose a { color: var(--foreground); font-weight: var(--font-weight-medium); text-decoration: underline; text-decoration-color: color-mix(in oklch, var(--foreground) 35%, transparent); text-underline-offset: 3px; }
+.ds-prose a:hover { text-decoration-color: currentColor; }
+.ds-prose strong { font-weight: var(--font-weight-semibold); }
+.ds-prose ul, .ds-prose ol { padding-left: 1.4em; }
+.ds-prose li + li { margin-top: 0.4em; }
+.ds-prose li::marker { color: var(--muted-foreground); }
+/* Blockquote = callout, matching Alert (info): card surface, thin border, tinted icon.
+   The icon is a CSS mask (Lucide "info"), so it's decorative and follows the tone and theme. */
+.ds-prose blockquote {
+  --_tone: var(--info);
+  position: relative;
+  margin: 1.4em 0;
+  padding: var(--space-3) var(--space-4) var(--space-3) calc(var(--space-4) + 16px + var(--space-3));
+  border: 1px solid color-mix(in oklab, var(--_tone) 25%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--_tone) 4%, var(--card));
+  color: var(--card-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+.ds-prose blockquote::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--space-3) + (1lh - 16px) / 2);
+  left: var(--space-4);
+  width: 16px;
+  height: 16px;
+  background: var(--_tone);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 16v-4'/%3E%3Cpath d='M12 8h.01'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 16v-4'/%3E%3Cpath d='M12 8h.01'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.ds-prose blockquote > * + * { margin-top: 0.6em; }
+.ds-prose :not(pre) > code { padding: 0.15em 0.35em; border-radius: var(--radius-sm); background: var(--muted); font-family: var(--font-mono); font-size: 0.85em; }
+.ds-prose__pre { overflow-x: auto; padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--code-bg); color: var(--code-fg); font-size: 0.8125rem; line-height: 1.7; outline: none; }
+.ds-prose__pre:focus-visible { box-shadow: var(--ring-focus); }
+.ds-prose hr { margin: 2em 0; }
+/* Rounded table: separate borders (collapse can't round corners), outer border on the table. */
+.ds-prose table { display: block; width: max-content; max-width: 100%; overflow-x: auto; border: 1px solid var(--border); border-collapse: separate; border-spacing: 0; border-radius: var(--radius-lg); font-size: var(--text-sm); }
+.ds-prose th, .ds-prose td { padding: var(--space-2) var(--space-3); border: 0; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); text-align: left; }
+.ds-prose tr > :last-child { border-right: 0; }
+.ds-prose tbody tr:last-child > * { border-bottom: 0; }
+.ds-prose th { background: var(--muted); font-weight: var(--font-weight-medium); }
+.ds-prose img { max-width: 100%; border-radius: var(--radius-lg); }
+
+/* ── Content blocks (markdown-blocks.ts) ───────────────────────────── */
+
+/* Callouts: the blockquote's card, with a tone and title per kind. */
+.ds-callout {
+  --_tone: var(--muted-foreground);
+  margin: 1.4em 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid color-mix(in oklab, var(--_tone) 25%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--_tone) 5%, var(--card));
+  color: var(--card-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+.ds-callout--note { --_tone: var(--muted-foreground); }
+.ds-callout--info { --_tone: var(--info); }
+.ds-callout--tip { --_tone: var(--success); }
+.ds-callout--warning { --_tone: var(--warning); }
+.ds-callout--danger { --_tone: var(--destructive); }
+.ds-prose .ds-callout__title { display: flex; align-items: center; gap: var(--space-2); color: var(--_tone); font-weight: var(--font-weight-semibold); }
+.ds-callout--note .ds-callout__title { color: var(--foreground); }
+.ds-callout__icon { width: 16px; height: 16px; flex: none; color: var(--_tone); }
+.ds-callout__body { margin-top: var(--space-1-5); padding-left: calc(16px + var(--space-2)); }
+.ds-callout__body > * + * { margin-top: 0.6em; }
+.ds-callout__body .ds-prose__pre { font-size: 0.75rem; }
+
+/* Steps: an ordered list with numbered circles joined by a line. */
+.ds-steps > ol { counter-reset: ds-step; padding-left: 0; list-style: none; }
+.ds-steps > ol > li { position: relative; counter-increment: ds-step; padding: 0 0 var(--space-6) calc(28px + var(--space-4)); }
+.ds-steps > ol > li + li { margin-top: 0; }
+.ds-steps > ol > li::before {
+  content: counter(ds-step);
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+}
+.ds-steps > ol > li::after { content: ''; position: absolute; top: 34px; bottom: 6px; left: 13.5px; width: 1px; background: var(--border); }
+.ds-steps > ol > li:last-child { padding-bottom: 0; }
+.ds-steps > ol > li:last-child::after { display: none; }
+.ds-steps > ol > li > :first-child { margin-top: 2px; font-weight: var(--font-weight-semibold); }
+.ds-steps > ol > li > * + * { margin-top: 0.6em; }
+
+/* Tabs and code groups: a line of tabs over the content. */
+.ds-tabs-block { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.ds-tabs-block__list { display: flex; gap: var(--space-1); overflow-x: auto; padding: 0 var(--space-2); border-bottom: 1px solid var(--border); background: color-mix(in oklab, var(--muted) 50%, var(--background)); scrollbar-width: none; }
+.ds-tabs-block__tab { position: relative; flex: none; height: 36px; padding: 0 var(--space-2); border: 0; background: transparent; color: var(--muted-foreground); font: inherit; font-size: var(--text-sm); font-weight: var(--font-weight-medium); cursor: pointer; }
+.ds-tabs-block__tab:hover { color: var(--foreground); }
+.ds-tabs-block__tab[aria-selected='true'] { color: var(--foreground); }
+.ds-tabs-block__tab[aria-selected='true']::after { content: ''; position: absolute; right: var(--space-2); bottom: -1px; left: var(--space-2); height: 2px; border-radius: 2px 2px 0 0; background: var(--foreground); }
+.ds-tabs-block__tab:focus-visible { outline: none; box-shadow: inset var(--ring-focus); border-radius: var(--radius-sm); }
+.ds-tabs-block__panel { padding: var(--space-4); outline: none; }
+.ds-tabs-block__panel:focus-visible { box-shadow: inset 0 0 0 2px var(--ring); }
+.ds-tabs-block__panel > * + * { margin-top: 0.8em; }
+.ds-tabs-block--code { background: var(--code-bg); }
+.ds-tabs-block--code .ds-tabs-block__list { background: transparent; }
+.ds-tabs-block--code .ds-tabs-block__tab { font-family: var(--font-mono); font-size: var(--text-xs); }
+.ds-tabs-block--code .ds-tabs-block__panel { padding: 0; }
+.ds-tabs-block--code .ds-prose__pre { border: 0; border-radius: 0; }
+
+/* Cards: a grid of links. */
+.ds-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-3); }
+.ds-prose .ds-card { display: grid; gap: var(--space-1); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); color: var(--card-foreground); font-weight: var(--font-weight-regular, 400); text-decoration: none; transition: border-color 120ms ease, background-color 120ms ease; }
+.ds-prose .ds-card:hover { border-color: color-mix(in oklab, var(--foreground) 25%, var(--border)); background: color-mix(in oklab, var(--muted) 40%, var(--card)); }
+.ds-prose .ds-card:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+.ds-card__title { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); font-weight: var(--font-weight-semibold); }
+.ds-card__arrow { width: 16px; height: 16px; flex: none; color: var(--muted-foreground); transition: transform 120ms ease; }
+.ds-card:hover .ds-card__arrow { transform: translateX(2px); color: var(--foreground); }
+.ds-card__text { color: var(--muted-foreground); font-size: var(--text-sm); line-height: var(--leading-sm); }
+
+/* Details: a section that opens and closes. */
+/* overflow: hidden so the summary's hover background follows the rounded corners. */
+.ds-details { overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.ds-details + .ds-details { margin-top: var(--space-2); }
+.ds-details__summary { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); font-weight: var(--font-weight-medium); cursor: pointer; list-style: none; }
+.ds-details__summary::-webkit-details-marker { display: none; }
+.ds-details__summary::before { content: ''; width: 16px; height: 16px; flex: none; background: var(--muted-foreground); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E") center / contain no-repeat; transition: transform 150ms ease; }
+.ds-details[open] > .ds-details__summary::before { transform: rotate(90deg); }
+.ds-details__summary:hover { background: color-mix(in oklab, var(--muted) 50%, transparent); }
+.ds-details__summary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--ring); }
+/* Open: a line separates the question from the answer. */
+.ds-details[open] > .ds-details__summary { border-bottom: 1px solid var(--border); }
+.ds-details__body { padding: var(--space-3) var(--space-4) var(--space-4) calc(var(--space-4) + 16px + var(--space-2)); }
+.ds-details__body > * + * { margin-top: 0.6em; }
+
+/* Diagrams: the Mermaid source as code until the SVG is drawn. */
+.ds-mermaid.is-drawn { display: flex; justify-content: center; overflow-x: auto; padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); }
+.ds-mermaid.is-drawn svg { max-width: 100%; height: auto; }
+.ds-mermaid__error { margin-top: var(--space-2); color: var(--destructive); font-size: var(--text-sm); }
+
+/* Images (zoom on click) and videos. */
+.ds-zoom { display: inline-block; max-width: 100%; padding: 0; border: 0; border-radius: var(--radius-lg); background: none; cursor: zoom-in; vertical-align: top; }
+.ds-zoom img { display: block; border: 1px solid var(--border); }
+.ds-zoom:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+/* The X sits in the top padding, above the image. */
+.ds-zoom-dialog.ds-dialog { width: min(1200px, calc(100vw - 32px)); max-width: none; padding: 44px var(--space-2) var(--space-2); }
+.ds-zoom-dialog__image { display: block; width: 100%; max-height: calc(100vh - 120px); margin: 0 auto; border-radius: var(--radius-md); object-fit: contain; }
+.ds-video { display: block; width: 100%; border: 1px solid var(--border); border-radius: var(--radius-lg); background: #000; }
+.ds-embed { display: block; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--muted); }
+.ds-embed iframe { display: block; width: 100%; height: 100%; border: 0; }
+
+/* ── JsonEditor (CodeMirror) ───────────────────────────────────────── */
+.ds-json-editor { overflow: hidden; background: var(--code-bg); color: var(--code-fg); font-size: 12px; }
+.ds-json-editor .cm-editor { max-height: 360px; background: transparent; outline: none; }
+.ds-json-editor .cm-editor.cm-focused { outline: none; }
+.ds-json-editor:has(.cm-focused) { box-shadow: inset 0 0 0 1px var(--ring); }
+.ds-json-editor.is-invalid { box-shadow: inset 0 0 0 1px var(--destructive); }
+.ds-json-editor .cm-scroller { font-family: var(--font-mono); line-height: 1.6; }
+.ds-json-editor .cm-content { padding: var(--space-2) 0; caret-color: var(--foreground); }
+.ds-json-editor .cm-line { padding: 0 var(--space-3) 0 var(--space-1); }
+.ds-json-editor .cm-cursor { border-left-color: var(--foreground); }
+.ds-json-editor .cm-selectionBackground,
+.ds-json-editor .cm-focused .cm-selectionBackground,
+.ds-json-editor .cm-content ::selection { background: color-mix(in oklab, var(--ring) 28%, transparent) !important; }
+.ds-json-editor .cm-activeLine { background: color-mix(in oklab, var(--foreground) 4%, transparent); }
+.ds-json-editor .cm-gutters { border-right: 1px solid var(--border); background: var(--code-header); color: var(--muted-foreground); }
+.ds-json-editor .cm-lineNumbers .cm-gutterElement { min-width: 28px; padding: 0 var(--space-1) 0 var(--space-2); font-size: 11px; }
+.ds-json-editor .cm-activeLineGutter { background: color-mix(in oklab, var(--foreground) 6%, transparent); color: var(--foreground); }
+.ds-json-editor .cm-foldGutter .cm-gutterElement { display: grid; place-items: center; width: 14px; cursor: pointer; }
+.ds-json-editor__fold { display: inline-block; color: var(--muted-foreground); font-size: 13px; line-height: 1; transition: transform var(--duration-fast) var(--ease-standard); }
+.ds-json-editor__fold.is-open { transform: rotate(90deg); }
+.ds-json-editor .cm-foldPlaceholder { margin: 0 2px; padding: 0 4px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--muted); color: var(--muted-foreground); }
+.ds-json-editor .cm-matchingBracket { background: color-mix(in oklab, var(--ring) 22%, transparent); outline: 1px solid color-mix(in oklab, var(--ring) 45%, transparent); }
+.ds-json-editor .cm-nonmatchingBracket { background: color-mix(in oklab, var(--destructive) 20%, transparent); }
+.ds-json-editor .cm-placeholder { color: var(--muted-foreground); }
+/* Lint: wavy underline on the error and a dot in the gutter; the message shows on hover. */
+.ds-json-editor .cm-gutter-lint { width: 14px; }
+.ds-json-editor .cm-lint-marker { width: 8px; height: 8px; margin: 6px 3px 0; border-radius: var(--radius-full); content: none; }
+.ds-json-editor .cm-lint-marker-error { background: var(--destructive); }
+.ds-json-editor .cm-lintRange-error { background-image: none; text-decoration: wavy underline var(--destructive); text-decoration-skip-ink: none; text-underline-offset: 3px; }
+.cm-tooltip.cm-tooltip-lint, .cm-tooltip-hover { overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--popover); color: var(--popover-foreground); box-shadow: var(--shadow-md); font-family: var(--font-sans); font-size: var(--text-xs); }
+.cm-tooltip .cm-diagnostic { padding: var(--space-1-5) var(--space-2-5); border-left: 3px solid var(--destructive); }
+.ds-json-editor--fallback { display: block; width: 100%; min-height: 120px; padding: var(--space-2) var(--space-3) var(--space-2) 44px; border: 0; font-family: var(--font-mono); font-size: 12px; line-height: 1.6; resize: vertical; outline: none; }
+
+/* Path parameter with a tooltip: dotted underline hints that it explains itself. */
+.ds-endpoint-path__param--hint { border-radius: 2px; text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; outline: none; }
+.ds-endpoint-path__param--hint:focus-visible { box-shadow: var(--ring-focus); }
+
+/* oneOf / anyOf: a label, a row of variant buttons (aria-pressed), then the chosen variant's fields. */
+.ds-schema__variants { display: grid; gap: var(--space-2); padding: var(--space-3) 0; }
+.ds-schema__variants--nested { margin: var(--space-2) 0 0 var(--space-1-5); padding: var(--space-2) 0 0 var(--space-5); border-left: 1px solid var(--border); }
+.ds-schema__variants-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.ds-schema__variants-label { color: var(--muted-foreground); font-size: var(--text-xs); }
+.ds-schema__variant-list { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 2px; border-radius: var(--radius-md); background: var(--muted); }
+.ds-schema__variant {
+  height: 24px;
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: calc(var(--radius-md) - 2px);
+  background: transparent;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+.ds-schema__variant:hover { color: var(--foreground); }
+.ds-schema__variant[aria-pressed='true'] { background: var(--background); color: var(--foreground); box-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 12%, transparent); }
+.ds-schema__variant:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+.ds-schema__variants-hint, .ds-schema__circular { color: var(--muted-foreground); font-size: var(--text-xs); }
+.ds-schema__variants > .ds-schema__list { margin-top: 0; }
+
+/* Response tabs with an example picker on the right. */
+.ds-responses__views-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.ds-responses__example-select { max-width: 100%; }
