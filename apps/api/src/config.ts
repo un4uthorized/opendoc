@@ -16,6 +16,8 @@ export interface Config {
   allowedOrigins: string[];
   /** Public URL of the web app, used to build invitation links. */
   appUrl: string;
+  /** Built web app (apps/web/dist) to serve next to the API, as in the Docker image. Unset: API only. */
+  webDir?: string;
   admin?: { email: string; password: string; name: string };
 }
 
@@ -66,6 +68,7 @@ export function loadConfig(env: Env = process.env): Config {
     trustProxy: bool(env, 'TRUST_PROXY') ? 1 : false,
     allowedOrigins: [...new Set(allowedOrigins)],
     appUrl,
+    webDir: env.WEB_DIR?.trim() || undefined,
     admin: adminEmail && adminPassword ? { email: adminEmail, password: adminPassword, name: env.ADMIN_NAME?.trim() || 'Administrador' } : undefined,
   };
 }

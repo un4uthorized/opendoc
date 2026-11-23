@@ -16,6 +16,20 @@ pnpm dev               # API em :4173 e web em :5173 (o Vite repassa /api para a
 - `pnpm test`: testes de integração da API contra um PostgreSQL real (`TEST_DATABASE_URL`, padrão `127.0.0.1:55432`; veja `apps/api/test/helpers.ts`).
 - `pnpm --filter @opendoc/api migrate`: aplica as migrations (a API também aplica ao iniciar).
 
+## Imagem de produção
+
+O `Dockerfile` gera uma imagem só, com a API e o front já compilado no mesmo endereço: a API responde em `/api` e entrega o front nas demais rotas (`/admin`, `/docs/:projeto`, `/convite/:token`). O PostgreSQL roda à parte, e as migrations são aplicadas quando o container inicia.
+
+```sh
+podman build --format docker -t opendoc .
+podman run --env-file .env -p 4173:4173 opendoc
+```
+
+- No `.env` da produção, `DATABASE_URL` aponta para o PostgreSQL acessível pelo container, e `APP_URL` é o endereço público (monta os links de convite e é a origem aceita nas alterações).
+- A imagem roda com `NODE_ENV=production`, então os cookies saem com `Secure`: use HTTPS na frente (proxy reverso, com `TRUST_PROXY=true`). Em `http://localhost` os navegadores também aceitam.
+- `--format docker` mantém o `HEALTHCHECK` (`/api/health`); no formato OCI, padrão do Podman, ele é ignorado.
+- `WEB_DIR` (já definida na imagem) é o que liga a entrega do front pela API; em desenvolvimento ela fica vazia e o Vite serve o front.
+
 ## API (`apps/api`)
 
 Roda direto com Node 24 (TypeScript sem build, só tipos apagáveis). Migrations em SQL em `apps/api/migrations/`.
