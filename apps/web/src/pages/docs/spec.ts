@@ -90,9 +90,10 @@ export function exampleFor(input: Schema | undefined, depth = 0): unknown {
 /* ── Servers ───────────────────────────────────────────────────────── */
 
 export interface ServerVariable { default: string; enum?: string[]; description?: string }
-export interface ServerInfo { url: string; description: string; variables: Record<string, ServerVariable> }
+/** `description` is the spec's, or the URL when the spec gives none (`named` says which). */
+export interface ServerInfo { url: string; description: string; named: boolean; variables: Record<string, ServerVariable> }
 
-const toServer = (raw: Json): ServerInfo => ({ url: raw.url, description: raw.description ?? raw.url, variables: raw.variables ?? {} });
+const toServer = (raw: Json): ServerInfo => ({ url: raw.url, description: raw.description ?? raw.url, named: Boolean(raw.description), variables: raw.variables ?? {} });
 
 /** A server URL with its {variables} filled in (chosen value, else the default), without a trailing slash. */
 export function serverUrl(server: ServerInfo, values: Record<string, string> = {}) {

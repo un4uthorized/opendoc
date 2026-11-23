@@ -1012,7 +1012,8 @@ export function DocsPage() {
                   <dl className="rd-servers">
                     {servers.map((server) => (
                       <div key={server.url} className="rd-servers__row">
-                        <dt>{server.description}</dt>
+                        {/* A server without a description in the spec is just "Servidor": its URL is already next to it. */}
+                        <dt title={server.named ? server.description : undefined}>{server.named ? server.description : t.server}</dt>
                         <dd>
                           <code title={Object.keys(server.variables).length ? server.url : undefined}>{serverUrl(server)}</code>
                           <CopyButton value={serverUrl(server)} label={`Copiar URL de ${server.description.toLowerCase()}`} />
@@ -1049,7 +1050,8 @@ export function DocsPage() {
             )}
 
           <footer className="rd-row rd-footer">
-            <p className="rd-row__content">{t.generatedFrom} <code>openapi.json</code> ({info.version}) · {t.defaultServer} <code>{baseUrl}</code></p>
+            {/* One inline run of text inside the centered row, so words and codes keep normal spacing. */}
+            <div className="rd-row__content"><p>{t.generatedFrom} <code>openapi.json</code> ({info.version}) · {t.defaultServer} <code>{baseUrl}</code></p></div>
             <div className="rd-row__aside" aria-hidden="true" />
           </footer>
           </div>

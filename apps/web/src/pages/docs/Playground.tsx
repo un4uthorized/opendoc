@@ -812,7 +812,7 @@ export function Playground({ play }: { play: PlaygroundState }) {
             </SelectContent>
           </Select>
         ) : (
-          <span className="rd-pm__server-label">{server.description}</span>
+          <span className="rd-pm__server-label" title={server.url}>{server.named ? server.description : t.server}</span>
         )}
       </div>
       {/* Server variables ({host}…) aren't editable here: the URL uses each one's default from the spec. */}

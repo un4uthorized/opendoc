@@ -352,7 +352,8 @@
 .rd-servers { display: grid; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--background); }
 .rd-servers__row { display: flex; align-items: center; gap: var(--space-3); min-height: var(--control-lg); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); }
 .rd-servers__row + .rd-servers__row { border-top: 1px solid var(--border); }
-.rd-servers dt { width: 72px; flex: none; color: var(--muted-foreground); font-size: var(--text-sm); }
+/* Label column: at least 72px, at most 40%; a long description is cut with an ellipsis, never over the URL. */
+.rd-servers dt { flex: none; min-width: 72px; max-width: 40%; overflow: hidden; color: var(--muted-foreground); font-size: var(--text-sm); text-overflow: ellipsis; white-space: nowrap; }
 .rd-servers dd { display: flex; flex: 1; align-items: center; justify-content: space-between; gap: var(--space-2); min-width: 0; }
 .rd-servers code { min-width: 0; overflow: hidden; font-family: var(--font-mono); font-size: var(--text-xs); text-overflow: ellipsis; white-space: nowrap; }
 
@@ -381,8 +382,8 @@
 /* A thin strip, the same height as the sidebar's "Powered by" block (.rd-powered, 56px with its
    border), so both top borders line up across the page. */
 .rd-footer { box-sizing: border-box; min-height: 56px; margin-top: auto; border-top: 1px solid var(--border); }
-.rd-footer .rd-row__content { display: flex; flex-wrap: wrap; align-items: center; padding-block: var(--space-2); color: var(--muted-foreground); font-size: var(--text-xs); }
-.rd-footer .rd-row__content > * { margin: 0; }
+.rd-footer .rd-row__content { display: flex; align-items: center; gap: 0; padding-block: var(--space-2); color: var(--muted-foreground); font-size: var(--text-xs); }
+.rd-footer .rd-row__content > p { margin: 0; }
 .rd-footer .rd-row__aside { padding: 0; }
 .rd-footer code { font-family: var(--font-mono); font-size: var(--text-xs); }
 
@@ -748,3 +749,36 @@
 .rd-pm__image { display: grid; place-items: center; padding: var(--space-4); background: repeating-conic-gradient(var(--muted) 0 25%, transparent 0 50%) 0 0 / 16px 16px; }
 .rd-pm__image img { max-width: 100%; max-height: 320px; height: auto; }
 .rd-pm__download { color: var(--foreground); font-weight: var(--font-weight-medium); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Test client: one scroll, in the response ────────────────────────
+   On wide screens the right column is exactly the height left under the header and never scrolls
+   itself. Top to bottom: title row, URL bar and request tabs (fixed; a long request gets its own
+   capped area), then the response, which takes all the height left and is the only thing that
+   scrolls. Phones keep the bottom sheet. */
+@media (min-width: 861px) {
+  .rd-operation .rd-row__sticky {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 56px - var(--space-12));
+    max-height: none;
+    overflow: hidden;
+  }
+  .rd-row__sticky > .rd-aside-block { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+  .rd-row__sticky .rd-pm { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+  .rd-row__sticky .rd-pm > * { flex: none; }
+
+  /* Request (params, headers, auth, body): its own capped area, so the response keeps most of the height. */
+  .rd-row__sticky .rd-pm > .rd-pm__tabs .rd-pm__panel:not([hidden]) { max-height: 34vh; overflow-y: auto; overscroll-behavior: contain; }
+
+  /* Response: fills what's left; the body (or headers) scrolls inside. */
+  .rd-row__sticky .rd-pm > .rd-pm__response { display: flex; flex: 1; flex-direction: column; min-height: 120px; }
+  .rd-row__sticky .rd-pm__response > .rd-pm__tabs { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+  .rd-row__sticky .rd-pm__response > .rd-pm__response-empty { flex: 1; }
+  .rd-row__sticky .rd-pm__response .rd-pm__panel:not([hidden]) { display: flex; flex: 1; flex-direction: column; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .rd-row__sticky .rd-pm__response .rd-pm__output { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+  .rd-row__sticky .rd-pm__response .rd-pm__output .ds-code__pre { flex: 1; min-height: 0; max-height: none; overflow: auto; }
+}
+
+/* Thin, quiet scrollbars in the test client: visible enough to grab, darker on hover. */
+.rd-pm :is(.rd-pm__panel, .ds-code__pre) { scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--muted-foreground) 35%, transparent) transparent; }
+.rd-pm :is(.rd-pm__panel, .ds-code__pre):hover { scrollbar-color: color-mix(in oklab, var(--muted-foreground) 60%, transparent) transparent; }
